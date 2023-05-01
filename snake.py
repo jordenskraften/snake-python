@@ -1,16 +1,14 @@
 class Snake:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.length = 1
-        self.direction = "right"
+        self.segments = [(x, y)] 
+        self.speed = 10
+        self.direction = (0,0)
     
+    def growth():
+        pass
+
     def move(self):
-        if self.direction == "right":
-            self.x += 1
-        elif self.direction == "left":
-            self.x -= 1
-        elif self.direction == "up":
-            self.y -= 1
-        elif self.direction == "down":
-            self.y += 1
+        pass
+
+    def render():
+        pass
