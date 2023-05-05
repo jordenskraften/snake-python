@@ -44,8 +44,8 @@ class Snake:
         return score, food_pos
 
 
-    def draw_snake(self):
-        for pos in self.snake_body:
+    def draw_snake(self): 
+        for pos in self.snake_body: 
             pygame.draw.rect(self.surface, self.color, pygame.Rect(
                 pos[0], pos[1], 10, 10))
   

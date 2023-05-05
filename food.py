@@ -10,7 +10,7 @@ class Food:
         if self.food_spawn == True:
             pygame.draw.rect(surface, (0, 255, 0), pygame.Rect(
                 self.food_pos[0], self.food_pos[1], 10, 10))
-        self.food_spawn = False
+        #self.food_spawn = False
 
     def set_food_spawn(self, value):
         self.food_spawn = value
