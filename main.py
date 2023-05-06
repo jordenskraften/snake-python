@@ -1,7 +1,8 @@
-from game import Game
+from game_context import GameContext
+
 
 def main():
-    game = Game()
+    game = GameContext()
     game.play()
 
 if __name__ == '__main__':
