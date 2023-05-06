@@ -77,12 +77,13 @@ class MainMenuState(GameState):
         if self.button1_rect.collidepoint(mouse_pos) and mouse_pressed[0]:
             self.context.change_state(self.context.game_state_list.single_player)
             return
-            
+
         if self.button2_rect.collidepoint(mouse_pos) and mouse_pressed[0]:
             print("Button 2 clicked!")
 
         if self.button3_rect.collidepoint(mouse_pos) and mouse_pressed[0]:
             pygame.quit()
+            quit() 
         
         # Установка максимальной частоты кадров (60 fps)
         self.clock.tick(10) 
