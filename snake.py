@@ -1,12 +1,12 @@
-import pygame
-import random
+import pygame 
+import random 
 
 class Snake:
     def __init__(self, surface):
         self.surface = surface
         self.color = (0, 0, 255)
         self.snake_head_pos = [100, 50]
-        self.snake_body = [[100, 50], [90, 50], [80, 50]]
+        self.snake_body = [[100, 50], [90, 50], [80, 50]] 
         self.direction = "RIGHT"
         self.change_to = self.direction
 
@@ -27,21 +27,21 @@ class Snake:
         elif self.direction == "DOWN":
             self.snake_head_pos[1] += 10
 
-    def snake_body_mechanism(self, score, food_pos):
+    def snake_body_mechanism(self, score, food):
         """
         Метод отвечает за механизм движения змейки и ее рост при поедании еды.
         """
         new_head_pos = self.snake_head_pos[:]
         # Проверяем, столкнулась ли змейка с едой
-        if new_head_pos == food_pos:
+        if new_head_pos == food.food_pos:
             # Если да, то генерируем новое положение еды и добавляем блок к змейке
-            food_pos = [random.randrange(1, 72)*10, random.randrange(1, 46)*10]
+            food.food_pos = food.renew_pos()
             score += 1
         else:
             # Если нет, то просто двигаем змейку без добавления блока
             self.snake_body.pop()
         self.snake_body.insert(0, new_head_pos)
-        return score, food_pos
+        return score 
 
 
     def draw_snake(self): 
