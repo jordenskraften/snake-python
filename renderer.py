@@ -1,13 +1,20 @@
 import pygame
 
 class Renderer: 
-    def __init__(self, surface, snake, food):
+    def __init__(self, surface, food):
         self.surface = surface
-        self.snake = snake
+        self.snakes = []
         self.food = food 
 
-    def draw_game_objects(self, score_val):
-        self.snake.draw_snake()   
+    def add_snake(self, snake):
+        self.snakes.append(snake)
+
+    def remove_sname(self, snake):
+        self.snakes.remove(snake)
+
+    def draw_game_objects(self, score_val): 
+        for s in self.snakes: 
+            s.draw_snake()   
         self.food.draw_food(self.surface)
         self.display_score(score_val)
         

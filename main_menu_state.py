@@ -86,6 +86,6 @@ class MainMenuState(GameState):
             quit() 
         
         # Установка максимальной частоты кадров (60 fps)
-        self.clock.tick(10) 
+        self.clock.tick(15) 
 
         pygame.display.flip()
