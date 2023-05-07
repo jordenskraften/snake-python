@@ -1,9 +1,10 @@
 import pygame  
 from collisions import Collisiions
 from keyboard_inputs import MovementDirection
-  
+from snake_ai import SnakeAI
+
 class Snake:
-    def __init__(self, surface, game_rect, collisions, is_ai = False): 
+    def __init__(self, surface, game_rect, collisions, food, is_ai = False): 
         self.surface = surface
         self.game_rect = game_rect
         self.color = (0, 0, 255) 
@@ -13,16 +14,19 @@ class Snake:
         self.COORDS_HEIGHT = game_rect.height // 10
         self.snake_spawn_x = self.COORDS_WIDTH // 2
         self.snake_spawn_y = self.COORDS_HEIGHT // 2 
-        self.is_ai = is_ai
         self.snake_head_pos = [self.snake_spawn_x, self.snake_spawn_y]
+        self.snake_ai = None
+        self.is_ai = is_ai 
+        self.food = food
+        self.collisions = collisions
         if self.is_ai == True: 
             self.snake_head_pos = [3, 3]
             self.color = (255, 125, 125) 
+            self.snake_ai = SnakeAI(self.COORDS_WIDTH, self.COORDS_HEIGHT, self.collisions, self, self.food)
         self.snake_body = [self.snake_head_pos]  
         self.direction = MovementDirection.RIGHT
         self.change_to = self.direction
-        self.score = 0
-        self.collisions = collisions
+        self.score = 0 
 
     def clear(self):
         self.surface = None
@@ -63,7 +67,7 @@ class Snake:
 
     def snake_body_mechanism(self, food): 
         new_head_pos = self.snake_head_pos[:] 
-        if new_head_pos == food.food_pos: 
+        if new_head_pos[0] == food.food_pos[0] and new_head_pos[1] == food.food_pos[1]: 
             food.food_pos = food.renew_pos()
             self.score += 1
         else: 
@@ -129,5 +133,40 @@ class Snake:
         return game_over
 
     def ai_movement(self): 
-        pass
+        self.snake_ai.create_path()
+
+    def ai_change_direction(self, vector):
+        x, y = vector
+        changed_pos = False
+        if self.direction == MovementDirection.RIGHT and changed_pos == False:
+            if x < 0 and y > 0:
+                self.direction = MovementDirection.DOWN
+                changed_pos = True
+            if x < 0 and y < 0:
+                self.direction = MovementDirection.UP  
+                changed_pos = True
+
+        if self.direction == MovementDirection.LEFT and changed_pos == False:
+            if x > 0 and y > 0:
+                self.direction = MovementDirection.DOWN
+                changed_pos = True
+            if x > 0 and y < 0:
+                self.direction = MovementDirection.UP  
+                changed_pos = True 
+
+        if self.direction == MovementDirection.DOWN and changed_pos == False:
+            if x > 0 and y < 0:
+                self.direction = MovementDirection.RIGHT
+                changed_pos = True
+            if x < 0 and y < 0:
+                self.direction = MovementDirection.LEFT 
+                changed_pos = True 
+
+        if self.direction == MovementDirection.UP and changed_pos == False:
+            if x > 0 and y > 0:
+                self.direction = MovementDirection.RIGHT
+                changed_pos = True
+            if x < 0 and y > 0:
+                self.direction = MovementDirection.LEFT 
+                changed_pos = True 
 

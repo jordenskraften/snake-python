@@ -7,7 +7,7 @@ from game_state import GameState
 from collisions import Collisiions
 
 
-class SingleGameState(GameState):
+class PlayerVersusAiState(GameState):
     def __init__(self, context):   
         self.context = context
         self.WIDTH = self.context.WIDTH
@@ -18,13 +18,16 @@ class SingleGameState(GameState):
         self.collisions = Collisiions() 
 
         self.food = Food(self.playable_area_rect, self.collisions) 
-        self.snake = Snake(self.surface, self.playable_area_rect, self.collisions, self.food)  
-        self.collisions.add_snake_to_list(self.snake) 
+        self.snake = Snake(self.surface, self.playable_area_rect, self.collisions, self.food) 
+        self.snake_AI = Snake(self.surface, self.playable_area_rect, self.collisions, self.food, True) 
+        self.collisions.add_snake_to_list(self.snake)
+        self.collisions.add_snake_to_list(self.snake_AI)
  
         self.keyboard = KeyboardHandler(self.snake)
         self.renderer = Renderer(self.surface, self.food)
-        self.renderer.add_snake(self.snake) 
-        print("create single player")
+        self.renderer.add_snake(self.snake)
+        self.renderer.add_snake(self.snake_AI)
+        print("create pvs")
 
     def enter(self, context): 
         self.context = context
@@ -36,13 +39,16 @@ class SingleGameState(GameState):
         self.collisions = Collisiions() 
 
         self.food = Food(self.playable_area_rect, self.collisions) 
-        self.snake = Snake(self.surface, self.playable_area_rect, self.collisions, self.food)  
-        self.collisions.add_snake_to_list(self.snake) 
+        self.snake = Snake(self.surface, self.playable_area_rect, self.collisions, self.food) 
+        self.snake_AI = Snake(self.surface, self.playable_area_rect, self.collisions, self.food, True) 
+        self.collisions.add_snake_to_list(self.snake)
+        self.collisions.add_snake_to_list(self.snake_AI)
  
         self.keyboard = KeyboardHandler(self.snake)
         self.renderer = Renderer(self.surface, self.food)
-        self.renderer.add_snake(self.snake) 
-        print("enter in single player")
+        self.renderer.add_snake(self.snake)
+        self.renderer.add_snake(self.snake_AI)
+        print("enter in pvs")
 
     def exit(self): 
         self.WIDTH = None
@@ -55,7 +61,7 @@ class SingleGameState(GameState):
         self.playable_area_rect = None
         self.keyboard = None
         self.renderer = None 
-        print("exit from single player")
+        print("exit from pvs")
 
 
     def action(self): 
@@ -69,7 +75,15 @@ class SingleGameState(GameState):
  
 
         self.collisions.update_obstacles()
-  
+
+        if self.snake_AI:
+            ai_fall = self.snake_AI.actions(self.food) 
+            if ai_fall == True:
+                self.renderer.remove_sname(self.snake_AI)
+                self.collisions.remove_snake_from_list(self.snake_AI)
+                del self.snake_AI
+                self.snake_AI = None
+
         game_over = self.snake.actions(self.food) 
         if game_over == True:
             self.context.change_state(self.context.game_state_list.main_menu)

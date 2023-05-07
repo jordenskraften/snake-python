@@ -31,7 +31,7 @@ class MainMenuState(GameState):
         self.button1_text = "Single Player"
         
         self.button2_rect = pygame.Rect(100, 200, 200, 50)
-        self.button2_text = "Button 2"
+        self.button2_text = "Player versus AI"
 
         self.button3_rect = pygame.Rect(100, 300, 200, 50)
         self.button3_text = "Exit"
@@ -79,7 +79,8 @@ class MainMenuState(GameState):
             return
 
         if self.button2_rect.collidepoint(mouse_pos) and mouse_pressed[0]:
-            print("Button 2 clicked!")
+            self.context.change_state(self.context.game_state_list.player_versus_ai)
+            return
 
         if self.button3_rect.collidepoint(mouse_pos) and mouse_pressed[0]:
             pygame.quit()
