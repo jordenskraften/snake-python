@@ -138,35 +138,52 @@ class Snake:
     def ai_change_direction(self, vector):
         x, y = vector
         changed_pos = False
-        if self.direction == MovementDirection.RIGHT and changed_pos == False:
-            if x < 0 and y > 0:
-                self.direction = MovementDirection.DOWN
-                changed_pos = True
-            if x < 0 and y < 0:
-                self.direction = MovementDirection.UP  
-                changed_pos = True
+        if self.direction == MovementDirection.RIGHT and changed_pos == False: 
+            if x != 0 or y != 0:
+                if x < 1 and y > 1:
+                    self.direction = MovementDirection.DOWN
+                    changed_pos = True
+                if x < 1 and y < 1:
+                    self.direction = MovementDirection.UP  
+                    changed_pos = True
+                if x >= 1 and y == 0:
+                    self.direction = MovementDirection.RIGHT  
+                    changed_pos = True
+
 
         if self.direction == MovementDirection.LEFT and changed_pos == False:
-            if x > 0 and y > 0:
-                self.direction = MovementDirection.DOWN
-                changed_pos = True
-            if x > 0 and y < 0:
-                self.direction = MovementDirection.UP  
-                changed_pos = True 
+            if x != 0 or y != 0:
+                if x > 1 and y > 1:
+                    self.direction = MovementDirection.DOWN
+                    changed_pos = True
+                if x > 1 and y < 1:
+                    self.direction = MovementDirection.UP  
+                    changed_pos = True 
+                if x <= 1 and y == 0:
+                    self.direction = MovementDirection.LEFT  
+                    changed_pos = True
 
         if self.direction == MovementDirection.DOWN and changed_pos == False:
-            if x > 0 and y < 0:
-                self.direction = MovementDirection.RIGHT
-                changed_pos = True
-            if x < 0 and y < 0:
-                self.direction = MovementDirection.LEFT 
-                changed_pos = True 
+            if x != 0 or y != 0:
+                if x > 1 and y < 1:
+                    self.direction = MovementDirection.RIGHT
+                    changed_pos = True
+                if x < 1 and y < 1:
+                    self.direction = MovementDirection.LEFT 
+                    changed_pos = True 
+                if y <= 1 and x == 0:
+                    self.direction = MovementDirection.DOWN  
+                    changed_pos = True
 
         if self.direction == MovementDirection.UP and changed_pos == False:
-            if x > 0 and y > 0:
-                self.direction = MovementDirection.RIGHT
-                changed_pos = True
-            if x < 0 and y > 0:
-                self.direction = MovementDirection.LEFT 
-                changed_pos = True 
+            if x != 0 or y != 0:
+                if x > 1 and y > 1:
+                    self.direction = MovementDirection.RIGHT
+                    changed_pos = True
+                if x < 1 and y > 1:
+                    self.direction = MovementDirection.LEFT 
+                    changed_pos = True 
+                if y >= 1 and x == 0:
+                    self.direction = MovementDirection.UP  
+                    changed_pos = True
 
