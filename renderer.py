@@ -22,7 +22,7 @@ class Renderer:
             if score_val_ai != None:
                 self.display_score_ai(score_val_ai)
         else:
-            self.display_score_ai(score_val_ai)
+            self.display_score_ai(score_val)
             self.display_score_ai2(score_val_ai)
 
         
