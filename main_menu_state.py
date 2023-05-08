@@ -18,6 +18,9 @@ class MainMenuState(GameState):
         
         self.button3_rect = None
         self.button3_text = None
+
+        self.button4_rect = None
+        self.button4_text = None
         print("create main menu")
         
     def enter(self, context): 
@@ -27,14 +30,17 @@ class MainMenuState(GameState):
         self.surface = self.context.surface
         self.clock = self.context.clock  
         # Создание кнопок
-        self.button1_rect = pygame.Rect(100, 100, 200, 50)
+        self.button1_rect = pygame.Rect(100, 50, 200, 50)
         self.button1_text = "Single Player"
         
-        self.button2_rect = pygame.Rect(100, 200, 200, 50)
+        self.button2_rect = pygame.Rect(100, 150, 200, 50)
         self.button2_text = "Player versus AI"
 
-        self.button3_rect = pygame.Rect(100, 300, 200, 50)
-        self.button3_text = "Exit"
+        self.button3_rect = pygame.Rect(100, 250, 200, 50)
+        self.button3_text = "AI versus AI"
+
+        self.button4_rect = pygame.Rect(100, 350, 200, 50)
+        self.button4_text = "Exit"
         print("enter in main menu")
 
     def exit(self): 
@@ -48,6 +54,8 @@ class MainMenuState(GameState):
         self.button2_text = None
         self.button3_rect = None
         self.button3_text = None
+        self.button4_rect = None
+        self.button4_text = None
         print("exit from main menu")
 
     def action(self): 
@@ -70,6 +78,11 @@ class MainMenuState(GameState):
         text = font.render(self.button3_text, True, (0, 0, 0))
         text_rect = text.get_rect(center=self.button3_rect.center)
         self.surface.blit(text, text_rect)
+ 
+        pygame.draw.rect(self.surface, (255, 255, 255), self.button4_rect)
+        text = font.render(self.button4_text, True, (0, 0, 0))
+        text_rect = text.get_rect(center=self.button4_rect.center)
+        self.surface.blit(text, text_rect)
         
         # Обработка кликов на кнопках
         mouse_pos = pygame.mouse.get_pos()
@@ -83,6 +96,10 @@ class MainMenuState(GameState):
             return
 
         if self.button3_rect.collidepoint(mouse_pos) and mouse_pressed[0]:
+            self.context.change_state(self.context.game_state_list.ai_versus_ai)
+            return
+
+        if self.button4_rect.collidepoint(mouse_pos) and mouse_pressed[0]:
             pygame.quit()
             quit() 
         

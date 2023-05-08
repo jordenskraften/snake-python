@@ -1,3 +1,4 @@
+import sys
 import pygame
 from snake import Snake
 from food import Food
@@ -79,19 +80,27 @@ class PlayerVersusAiState(GameState):
         if self.snake_AI:
             ai_fall = self.snake_AI.actions(self.food) 
             if ai_fall == True:
-                self.renderer.remove_sname(self.snake_AI)
-                self.collisions.remove_snake_from_list(self.snake_AI)
-                del self.snake_AI
-                self.snake_AI = None
+                self.snake_AI.respawn()
 
         game_over = self.snake.actions(self.food) 
         if game_over == True:
-            self.context.change_state(self.context.game_state_list.main_menu)
-            return
-
-            
-        self.renderer.draw_game_objects(self.snake.score) 
+                self.snake.respawn()
+            #self.context.change_state(self.context.game_state_list.main_menu)
+            #return 
+        if self.snake_AI != None:
+            self.renderer.draw_game_objects(self.snake.score, self.snake_AI.score) 
+        else:
+            self.renderer.draw_game_objects(self.snake.score) 
+        #------------выход в меню 
+        for event in events:
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.context.change_state(self.context.game_state_list.main_menu)
+                    return  
         # Установка максимальной частоты кадров (60 fps)
+
         self.clock.tick(10) 
 
         pygame.display.flip() 

@@ -20,31 +20,19 @@ class Snake:
         self.food = food
         self.collisions = collisions
         if self.is_ai == True: 
-            self.snake_head_pos = [3, 3]
+            self.snake_head_pos = [5, 4]
             self.color = (255, 125, 125) 
             self.snake_ai = SnakeAI(self.COORDS_WIDTH, self.COORDS_HEIGHT, self.collisions, self, self.food)
         self.snake_body = [self.snake_head_pos]  
         self.direction = MovementDirection.RIGHT
         self.change_to = self.direction
-        self.score = 0 
+        self.score = 0  
 
-    def clear(self):
-        self.surface = None
-        self.game_rect = None
-        self.color = None
-        self.DRAWING_OFFSET_X = None
-        self.DRAWING_OFFSET_Y = None
-        self.COORDS_WIDTH = None
-        self.COORDS_HEIGHT = None
-        self.snake_spawn_x = None
-        self.snake_spawn_y = None
-        self.is_ai = None
-        self.snake_head_pos = None 
-        self.snake_body = None
-        self.direction = None
-        self.change_to = None
-        self.score = None
-        self.collisions = None
+    def respawn(self):
+        self.snake_head_pos = [self.snake_spawn_x, self.snake_spawn_y]
+        self.snake_body = [self.snake_head_pos]  
+        self.direction = MovementDirection.RIGHT
+        self.change_to = self.direction
 
     def validate_direction_and_change(self):
         if any((
@@ -131,7 +119,7 @@ class Snake:
         if game_over == False:
             game_over = self.collisions.check_other_snakes_collisions(self)
         return game_over
-
+  
     def ai_movement(self): 
         self.snake_ai.create_path()
 
@@ -186,4 +174,27 @@ class Snake:
                 if y >= 1 and x == 0:
                     self.direction = MovementDirection.UP  
                     changed_pos = True
+        #змейка иногда входит в границы и надо её развернуть  
+        if self.direction == MovementDirection.RIGHT and self.COORDS_WIDTH - self.snake_head_pos[0] <= 0:
+            if self.snake_head_pos[1] >= self.COORDS_HEIGHT//2:
+                self.direction = MovementDirection.DOWN
+            else:
+                self.direction = MovementDirection.UP
+        if self.direction == MovementDirection.LEFT and self.snake_head_pos[0] < 1:
+            if self.snake_head_pos[1] >= self.COORDS_HEIGHT//2:
+                self.direction = MovementDirection.DOWN
+            else:
+                self.direction = MovementDirection.UP
+                
+        if self.direction == MovementDirection.UP and self.COORDS_HEIGHT - self.snake_head_pos[1] <= 0:
+            if self.snake_head_pos[0] >= self.COORDS_WIDTH//2:
+                self.direction = MovementDirection.LEFT
+            else:
+                self.direction = MovementDirection.RIGHT
+        if self.direction == MovementDirection.DOWN and self.snake_head_pos[1] < 1:
+            if self.snake_head_pos[0] >= self.COORDS_WIDTH//2:
+                self.direction = MovementDirection.LEFT
+            else:
+                self.direction = MovementDirection.RIGHT
+ 
 
