@@ -24,8 +24,7 @@ class SingleGameState(GameState):
  
         self.keyboard = KeyboardHandler(self.snake)
         self.renderer = Renderer(self.surface, self.food)
-        self.renderer.add_snake(self.snake) 
-        print("create single player")
+        self.renderer.add_snake(self.snake)  
 
     def enter(self, context): 
         self.context = context
@@ -42,8 +41,7 @@ class SingleGameState(GameState):
  
         self.keyboard = KeyboardHandler(self.snake)
         self.renderer = Renderer(self.surface, self.food)
-        self.renderer.add_snake(self.snake) 
-        print("enter in single player")
+        self.renderer.add_snake(self.snake)  
 
     def exit(self): 
         self.WIDTH = None
@@ -55,8 +53,7 @@ class SingleGameState(GameState):
         self.food = None
         self.playable_area_rect = None
         self.keyboard = None
-        self.renderer = None 
-        print("exit from single player")
+        self.renderer = None  
 
 
     def action(self): 

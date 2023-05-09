@@ -20,8 +20,7 @@ class MainMenuState(GameState):
         self.button3_text = None
 
         self.button4_rect = None
-        self.button4_text = None
-        print("create main menu")
+        self.button4_text = None 
         
     def enter(self, context): 
         self.context = context
@@ -40,8 +39,7 @@ class MainMenuState(GameState):
         self.button3_text = "AI versus AI"
 
         self.button4_rect = pygame.Rect(100, 350, 200, 50)
-        self.button4_text = "Exit"
-        print("enter in main menu")
+        self.button4_text = "Exit" 
 
     def exit(self): 
         self.WIDTH = None
@@ -55,8 +53,7 @@ class MainMenuState(GameState):
         self.button3_rect = None
         self.button3_text = None
         self.button4_rect = None
-        self.button4_text = None
-        print("exit from main menu")
+        self.button4_text = None 
 
     def action(self): 
         self.surface.fill((125,125,125))     

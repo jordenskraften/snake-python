@@ -27,8 +27,7 @@ class PlayerVersusAiState(GameState):
         self.keyboard = KeyboardHandler(self.snake)
         self.renderer = Renderer(self.surface, self.food)
         self.renderer.add_snake(self.snake)
-        self.renderer.add_snake(self.snake_AI)
-        print("create pvs")
+        self.renderer.add_snake(self.snake_AI) 
 
     def enter(self, context): 
         self.context = context
@@ -48,8 +47,7 @@ class PlayerVersusAiState(GameState):
         self.keyboard = KeyboardHandler(self.snake)
         self.renderer = Renderer(self.surface, self.food)
         self.renderer.add_snake(self.snake)
-        self.renderer.add_snake(self.snake_AI)
-        print("enter in pvs")
+        self.renderer.add_snake(self.snake_AI) 
 
     def exit(self): 
         self.WIDTH = None
@@ -61,8 +59,7 @@ class PlayerVersusAiState(GameState):
         self.food = None
         self.playable_area_rect = None
         self.keyboard = None
-        self.renderer = None 
-        print("exit from pvs")
+        self.renderer = None  
 
 
     def action(self): 
@@ -84,13 +81,9 @@ class PlayerVersusAiState(GameState):
 
         game_over = self.snake.actions(self.food) 
         if game_over == True:
-                self.snake.respawn()
-            #self.context.change_state(self.context.game_state_list.main_menu)
-            #return 
-        if self.snake_AI != None:
-            self.renderer.draw_game_objects(self.snake.score, self.snake_AI.score) 
-        else:
-            self.renderer.draw_game_objects(self.snake.score) 
+                self.snake.respawn() 
+
+        self.renderer.draw_game_objects(self.snake.score, self.snake_AI.score)  
         #------------выход в меню 
         for event in events:
             if event.type == pygame.QUIT:
@@ -99,7 +92,7 @@ class PlayerVersusAiState(GameState):
                 if event.key == pygame.K_ESCAPE:
                     self.context.change_state(self.context.game_state_list.main_menu)
                     return  
-        # Установка максимальной частоты кадров (60 fps)
+        # Установка максимальной частоты кадров  
 
         self.clock.tick(10) 
 

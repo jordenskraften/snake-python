@@ -25,8 +25,7 @@ class AiVersusAiState(GameState):
   
         self.renderer = Renderer(self.surface, self.food) 
         self.renderer.add_snake(self.snake_AI)
-        self.renderer.add_snake(self.snake_AI_second)
-        print("create ai_vs_ai")
+        self.renderer.add_snake(self.snake_AI_second) 
 
     def enter(self, context): 
         self.context = context
@@ -45,8 +44,7 @@ class AiVersusAiState(GameState):
   
         self.renderer = Renderer(self.surface, self.food)
         self.renderer.add_snake(self.snake_AI)
-        self.renderer.add_snake(self.snake_AI_second)
-        print("enter in ai_vs_ai")
+        self.renderer.add_snake(self.snake_AI_second) 
 
     def exit(self): 
         self.WIDTH = None
@@ -57,8 +55,7 @@ class AiVersusAiState(GameState):
         self.snake_AI_second = None
         self.food = None
         self.playable_area_rect = None 
-        self.renderer = None 
-        print("exit from ai_vs_ai")
+        self.renderer = None  
 
 
     def action(self): 
@@ -89,7 +86,7 @@ class AiVersusAiState(GameState):
                 if event.key == pygame.K_ESCAPE:
                     self.context.change_state(self.context.game_state_list.main_menu)
                     return  
-        # Установка максимальной частоты кадров (60 fps)
+        # Установка максимальной частоты кадров  
 
         self.clock.tick(10) 
 
