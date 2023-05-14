@@ -3,7 +3,7 @@ from collisions import Collisiions
 from keyboard_inputs import MovementDirection 
 
 class Snake:
-    def __init__(self, surface, game_rect, collisions, food, is_ai = False): 
+    def __init__(self, surface, game_rect, collisions, food, is_ai = False, is_second_ai = False): 
         self.surface = surface
         self.game_rect = game_rect
         self.color = (0, 0, 255) 
@@ -13,19 +13,24 @@ class Snake:
         self.COORDS_HEIGHT = game_rect.height // 10
         self.snake_spawn_x = self.COORDS_WIDTH // 2
         self.snake_spawn_y = self.COORDS_HEIGHT // 2 
-        self.snake_head_pos = [self.snake_spawn_x, self.snake_spawn_y]
+        self.snake_head_pos = [self.snake_spawn_x, self.snake_spawn_y] 
         self.snake_ai = None
         self.is_ai = is_ai 
         self.food = food
         self.collisions = collisions
         if self.is_ai == True: 
-            self.snake_head_pos = [5, 4]
+            if is_second_ai:
+                self.snake_head_pos = [10, 10]
+            else:
+                self.snake_head_pos = [self.COORDS_WIDTH-10, 10]
             self.color = (255, 125, 125)  
-        self.snake_body = [self.snake_head_pos]  
+        self.snake_body = [self.snake_head_pos, [self.snake_head_pos[0], self.snake_head_pos[1]-1], [self.snake_head_pos[0], self.snake_head_pos[1]-1] ]  
         self.direction = MovementDirection.RIGHT
         self.change_to = self.direction
         self.score = 0  
-
+        self.boss = None
+        self.boss_mode = False
+    
     def respawn(self):
         self.snake_head_pos = [self.snake_spawn_x, self.snake_spawn_y]
         self.snake_body = [self.snake_head_pos]  
@@ -56,6 +61,8 @@ class Snake:
         if new_head_pos[0] == food.food_pos[0] and new_head_pos[1] == food.food_pos[1]: 
             food.food_pos = food.renew_pos()
             self.score += 1
+            if self.boss != None:
+                self.boss.injury()
         else: 
             self.snake_body.pop()
         self.snake_body.insert(0, new_head_pos) 
@@ -78,18 +85,20 @@ class Snake:
             self.snake_head_pos[0] > self.COORDS_WIDTH  or self.snake_head_pos[0] < 0,
             self.snake_head_pos[1] > self.COORDS_HEIGHT or self.snake_head_pos[1] < 0
         )):
-            game_over = True
-            return game_over
-        return game_over
-
-    def check_for_snakes_bodies_colli2sion(self, game_over):
-        for block in self.snake_body[1:]: 
-            if (
-                block[0] == self.snake_head_pos[0] and
-                block[1] == self.snake_head_pos[1]
-            ):
+            if self.boss_mode == False:
                 game_over = True
                 return game_over
+            else:
+                #в босс моде мы крч если с границей сталкиваемся то не подыхаемся
+                #а тпшимся с обратной стороны 
+                if self.snake_head_pos[0] > self.COORDS_WIDTH:
+                    self.snake_head_pos[0] = 0 
+                elif self.snake_head_pos[0] <= 0: 
+                    self.snake_head_pos[0] = self.COORDS_WIDTH  
+                elif self.snake_head_pos[1] > self.COORDS_HEIGHT:
+                    self.snake_head_pos[1] = 0 
+                elif self.snake_head_pos[1] <= 0:
+                    self.snake_head_pos[1] = self.COORDS_HEIGHT
         return game_over
 
     def check_for_snakes_bodies_collision(self, game_over):
@@ -104,6 +113,10 @@ class Snake:
         return game_over
 
     def actions(self, food): 
+        if self.boss != None:
+            if self.boss_mode == False:
+                self.boss_mode = True
+
         if self.is_ai == True:
             self.change_to = self.ai_movement()
         self.validate_direction_and_change()

@@ -21,6 +21,9 @@ class MainMenuState(GameState):
 
         self.button4_rect = None
         self.button4_text = None 
+
+        self.button5_rect = None
+        self.button5_text = None 
         
     def enter(self, context): 
         self.context = context
@@ -41,6 +44,9 @@ class MainMenuState(GameState):
         self.button4_rect = pygame.Rect(100, 350, 200, 50)
         self.button4_text = "Exit" 
 
+        self.button5_rect = pygame.Rect(400, 50, 200, 50)
+        self.button5_text = "Boss Mode" 
+
     def exit(self): 
         self.WIDTH = None
         self.HEIGHT = None
@@ -54,6 +60,8 @@ class MainMenuState(GameState):
         self.button3_text = None
         self.button4_rect = None
         self.button4_text = None 
+        self.button5_rect = None
+        self.button5_text = None 
 
     def action(self): 
         self.surface.fill((125,125,125))     
@@ -80,6 +88,11 @@ class MainMenuState(GameState):
         text = font.render(self.button4_text, True, (0, 0, 0))
         text_rect = text.get_rect(center=self.button4_rect.center)
         self.surface.blit(text, text_rect)
+ 
+        pygame.draw.rect(self.surface, (255, 255, 255), self.button5_rect)
+        text = font.render(self.button5_text, True, (0, 0, 0))
+        text_rect = text.get_rect(center=self.button5_rect.center)
+        self.surface.blit(text, text_rect)
         
         # Обработка кликов на кнопках
         mouse_pos = pygame.mouse.get_pos()
@@ -94,6 +107,10 @@ class MainMenuState(GameState):
 
         if self.button3_rect.collidepoint(mouse_pos) and mouse_pressed[0]:
             self.context.change_state(self.context.game_state_list.ai_versus_ai)
+            return
+
+        if self.button5_rect.collidepoint(mouse_pos) and mouse_pressed[0]:
+            self.context.change_state(self.context.game_state_list.boss_mode)
             return
 
         if self.button4_rect.collidepoint(mouse_pos) and mouse_pressed[0]:
