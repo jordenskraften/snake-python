@@ -3,9 +3,10 @@ from collisions import Collisiions
 from keyboard_inputs import MovementDirection 
 from snake import Snake
 from random import randrange
-
+from boss_projectile import Boss_Projectile
+import math
 class Boss:
-    def __init__(self, surface, game_rect, collisions, snake, renderer ): 
+    def __init__(self, surface, game_rect, collisions, snake, renderer, global_timer ): 
         self.surface = surface
         self.game_rect = game_rect
         self.color = (0, 0, 255) 
@@ -21,74 +22,37 @@ class Boss:
         self.color = (255, 125, 0)   
         self.direction = MovementDirection.RIGHT
         self.change_to = self.direction 
-        self._time_tick = 0  # приватное поле, начинающееся с подчеркивания 
-        self.movespeed = 0.5
+        self.renderer = renderer
+        self.global_timer = global_timer
+        #-------------
+        self.time_tick = 0   
+        self.base_movespeed = 0.4
+        self.movespeed_current = self.base_movespeed
         self.pause_boss_timer = 0
         self.paused = False  
         self.injured = False
         self.collision_cooldown_timer = 0
         self.collision_on_cooldown = False  
-        #------ 
-        self.renderer = renderer
-    @property
-    def time_tick(self):
-        return self._time_tick
-
-    @time_tick.setter
-    def time_tick(self, value):
-        if value >= 35:  
-            self._time_tick = 0 
-            self.boss_select_ability_action()
-        else: 
-            self._time_tick = value
-        #---------------
-        if self.collision_cooldown_timer <= 0:
-            self.collision_on_cooldown = False 
-        else:
-            self.collision_cooldown_timer -= 1 
-            self.collision_on_cooldown = True
-
-        if self.collision_on_cooldown == True:
-            if self.collision_cooldown_timer %3 == 0:
-                self.snake.color = (255, 255, 255)  
-            else:
-                self.snake.color = (0, 0, 0)  
-        else:
-            self.snake.color = (0, 0, 255)  
-        #---------------
-        if self.pause_boss_timer <= 0:
-            self.paused = False
-            self.injured = False
-        else:
-            self.pause_boss_timer -= 1
-            self.paused = True 
-        #--------------
-        if self.injured == True:
-            self.color = (255, 0, 0)  
-        else:
-            if self.collision_on_cooldown == True:
-                self.color = (255, 225, 0)  
-            else:
-                self.color = (255, 125, 0)  
-    
+        #----------------
+        self.charging_spell = False  
+        self.charging_spell_timer = 0
+        #------  
+        self.boss_lives = 30
+ 
     def add_movespeed(self, val):
-        self.movespeed += val
-        if self.movespeed < 0.5:
-            self.movespeed = 0.5 
+        self.base_movespeed += val
+        if self.base_movespeed < 0.4:
+            self.base_movespeed = 0.4 
+        if self.base_movespeed > 0.9:
+            self.base_movespeed = 0.9 
 
-    def create_floating_text(self, text):
+    def create_floating_text(self, text, down_dir = False):
         pos = (
                 self.DRAWING_OFFSET_X + (self.center_pos[0] * 10),
                 self.DRAWING_OFFSET_Y + (self.center_pos[1] * 10)
             ) 
-        self.renderer.create_floating_text(pos, 1, text)
- 
-    def collision_with_snake(self):
-        #реакция на то когда босс догнал змею
-        self.collision_cooldown_timer, self.pause_boss_timer = 18, 21
-        self.collision_on_cooldown = True  
-        self.create_floating_text("haha, catched!")
-
+        self.renderer.create_floating_text(pos, 1, text, down_dir)
+   
     def injury(self):
         #реакция на то когда игрок съедает яблоко
         self.pause_boss_timer = 5
@@ -96,53 +60,23 @@ class Boss:
         self.injured = True 
         self.add_movespeed(0.05)  
         self.create_floating_text("awww, i feels pain!") 
-
-    def boss_select_ability_action(self):
-        #тут нарн в зависимости от дистанции будем стрелять, телепортироваться или еще че делать 
-        if self.time_tick <= 0: 
-            if self.pause_boss_timer <= 0:
-                r = randrange(0, 5)
-                match r:
-                    case 0:
-                        self.teleport()
-                    case 1:
-                        self.clap()
-                    case 2:
-                        self.shoot()
-                    case _:
-                        pass
-            else:
-                self.time_tick = 0
-
-
-    def teleport(self):
-        self.create_floating_text("casting TELEPORT!") 
-
-    def clap(self):
-        self.create_floating_text("casting CLAP!") 
-
-    def shoot(self):
-        self.create_floating_text("SHOOTING") 
-
-    def void_zone(self):
-        self.create_floating_text("casting VOID ZONES") 
-        #змейке надо будет сменить дирекшн
-        #в зависимости от её горизонтального или вертикального направления
-        #на нее чуть спереди от её лица будет идти войд зона от которой надо будет отбежать 
+        self.boss_lives -= 1
+        if self.boss_lives <= 0:
+            self.death()
+   
+    def death(self):
+        pass
 
     def change_boss_center_position(self): 
         if self.direction == MovementDirection.RIGHT:
-            self.center_pos[0] += self.movespeed 
+            self.center_pos[0] += self.movespeed_current 
         elif self.direction == MovementDirection.LEFT:
-            self.center_pos[0] -= self.movespeed 
+            self.center_pos[0] -= self.movespeed_current 
         elif self.direction == MovementDirection.UP:
-            self.center_pos[1] -= self.movespeed 
+            self.center_pos[1] -= self.movespeed_current 
         elif self.direction == MovementDirection.DOWN:
-            self.center_pos[1] += self.movespeed 
-
-    def boss_body_mechanism(self, snake): 
-        pass
-
+            self.center_pos[1] += self.movespeed_current 
+  
     def generate_boss_body_points(self, x, y):
         directions = [(0, 0), (1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]
 
@@ -172,6 +106,17 @@ class Boss:
                 )
             ) 
   
+    def collision_with_snake(self):
+        if self.paused == False and self.injured == False and self.snake.damage_immune_mode == False: 
+            #реакция на то когда босс догнал змею
+            self.collision_cooldown_timer, self.pause_boss_timer = 21, 21
+            self.collision_on_cooldown = True  
+            self.create_floating_text("haha, catched!")
+            if len(self.snake.snake_body) >= 2:
+                self.snake.snake_body.pop()
+            self.snake.damage_immune_after_hit()
+            self.snake.snake_lives -= 1
+
     def check_for_snakes_bodies_collision(self):
         if self.collision_on_cooldown == False:
             obstacles = self.collisions.get_obstacles()
@@ -183,14 +128,10 @@ class Boss:
                     self.collision_with_snake()
             return False
 
-    def actions(self, snake):  
-        #попробуем имитировать время, когда главное окно дергает эту функцию происходит константно несколько кадров
-        self.time_tick += 1 
-
+    def actions(self):    
         if self.paused == False:
             self.change_to = self.ai_movement() 
-            self.change_boss_center_position()
-            self.boss_body_mechanism(snake) 
+            self.change_boss_center_position() 
             self.check_for_snakes_bodies_collision() 
   
     def ai_movement(self): 
@@ -201,8 +142,9 @@ class Boss:
         s_y = self.center_pos[1]
         start = (s_x, s_y)
 
-        e_x = self.snake.snake_head_pos[0]
-        e_y = self.snake.snake_head_pos[1]
+        target = self.select_closest_snake_segment_to_boss()
+        e_x = target[0] 
+        e_y = target[1] 
         end = (e_x, e_y)
 
         new_dir = (
@@ -211,56 +153,139 @@ class Boss:
         ) 
         self.ai_change_direction(new_dir)
 
+    def select_closest_snake_segment_to_boss(self):
+        result = self.snake.snake_head_pos
+        x1 = self.center_pos[0]
+        y1 = self.center_pos[1]
+        x2 = self.snake.snake_head_pos[0] 
+        y2 = self.snake.snake_head_pos[1]
+        closest_dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        for seg in self.snake.snake_body:
+            x2 = seg[0]
+            y2 = seg[1]
+            closest_dist2 = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+            if (closest_dist > closest_dist2):
+                closest_dist = closest_dist2
+                result = seg
+        return result
+
+
     def ai_change_direction(self, vector):
-        x, y = vector
-        changed_pos = False
-        if self.direction == MovementDirection.RIGHT and changed_pos == False: 
-            if x != 0 or y != 0:
-                if x < 1 and y > 1:
-                    self.direction = MovementDirection.DOWN
-                    changed_pos = True
-                if x < 1 and y < 1:
-                    self.direction = MovementDirection.UP  
-                    changed_pos = True
-                if x >= 1 and y == 0:
-                    self.direction = MovementDirection.RIGHT  
-                    changed_pos = True
-
-
-        if self.direction == MovementDirection.LEFT and changed_pos == False:
-            if x != 0 or y != 0:
-                if x > 1 and y > 1:
-                    self.direction = MovementDirection.DOWN
-                    changed_pos = True
-                if x > 1 and y < 1:
-                    self.direction = MovementDirection.UP  
-                    changed_pos = True 
-                if x <= 1 and y == 0:
-                    self.direction = MovementDirection.LEFT  
-                    changed_pos = True
-
-        if self.direction == MovementDirection.DOWN and changed_pos == False:
-            if x != 0 or y != 0:
-                if x > 1 and y < 1:
-                    self.direction = MovementDirection.RIGHT
-                    changed_pos = True
-                if x < 1 and y < 1:
-                    self.direction = MovementDirection.LEFT 
-                    changed_pos = True 
-                if y <= 1 and x == 0:
-                    self.direction = MovementDirection.DOWN  
-                    changed_pos = True
-
-        if self.direction == MovementDirection.UP and changed_pos == False:
-            if x != 0 or y != 0:
-                if x > 1 and y > 1:
-                    self.direction = MovementDirection.RIGHT
-                    changed_pos = True
-                if x < 1 and y > 1:
-                    self.direction = MovementDirection.LEFT 
-                    changed_pos = True 
-                if y >= 1 and x == 0:
-                    self.direction = MovementDirection.UP  
-                    changed_pos = True 
+        x, y = vector  
+        horizontal_move = True
+        if abs(x) - abs(y) <= 1.5:
+            horizontal_move = False 
+        if horizontal_move:
+            if x > 0:
+                self.direction = MovementDirection.RIGHT  
+            else:
+                self.direction = MovementDirection.LEFT  
+        else:
+            if y > 0:
+                self.direction = MovementDirection.DOWN 
+            else:
+                self.direction = MovementDirection.UP  
  
+#-------------------------------------
+#таймеры 
+#------------------- 
+    def timer_tick(self):
+        self.time_tick += 1
+        self.boss_pause_event()
+        self.collisions_and_injury_event()
+        self.boss_abilities_casting_event()
 
+
+    def boss_abilities_casting_event(self):
+        if self.time_tick >= 35 and self.paused == False and self.injured == False:    
+            self.time_tick = 0
+            self.boss_select_ability_action() 
+        self.boss_charging_spell_effect()
+
+    def boss_pause_event(self):
+        #--------------- 
+        if self.pause_boss_timer <= 0:
+            self.paused = False
+            self.injured = False
+        else:
+            self.pause_boss_timer -= 1
+            self.paused = True 
+
+
+    def collisions_and_injury_event(self):
+        #--------------
+        if self.collision_cooldown_timer <= 0:
+            self.collision_on_cooldown = False 
+        else:
+            self.collision_cooldown_timer -= 1 
+            self.collision_on_cooldown = True 
+        #---------------
+        if self.injured == True:
+            self.color = (255, 0, 0)  
+        else:
+            if self.collision_on_cooldown == True:
+                self.color = (255, 225, 0)  
+            else:
+                self.color = (255, 125, 0)  
+#---------------
+#spells
+    def boss_select_ability_action(self):
+        #тут нарн в зависимости от дистанции будем стрелять, телепортироваться или еще че делать 
+        if self.pause_boss_timer <= 0:
+            r = randrange(0, 3)
+            match r:
+                case 0:
+                    self.shoot()
+                case 1:
+                    self.charge()
+                case 2:
+                    self.shoot()
+                case 3:
+                    self.charge()
+                case _:
+                    pass 
+
+
+    def teleport(self):
+        self.create_floating_text("casting TELEPORT!", True) 
+
+    def clap(self):
+        self.create_floating_text("casting CLAP!", True)  
+
+    def shoot(self):
+        self.create_floating_text("SHOOTING", True) 
+        dir = (1,0)
+        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir)
+        self.global_timer.attach(pj)
+        dir = (-1,0)
+        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir)
+        self.global_timer.attach(pj)
+        dir = (0,1)
+        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir)
+        self.global_timer.attach(pj)
+        dir = (0,-1)
+        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir)
+        self.global_timer.attach(pj)
+
+    def void_zone(self):
+        self.create_floating_text("casting VOID ZONES", True)  
+
+    def charge(self):
+        self.create_floating_text("casting CHARGE!", True)  
+        self.boss_charging_spell_activate()
+#-----------------
+    def boss_charging_spell_activate(self): 
+        if self.charging_spell == False:
+            self.charging_spell = True
+            self.charging_spell_timer = 4
+
+    def boss_charging_spell_effect(self): 
+        bonus_ms = 2
+        if self.charging_spell == False:
+            self.movespeed_current = self.base_movespeed
+        else: 
+            self.movespeed_current = self.base_movespeed + bonus_ms 
+        self.charging_spell_timer -= 1
+        if self.charging_spell_timer < 0:
+            self.charging_spell = False
+            self.charging_spell_timer = 0

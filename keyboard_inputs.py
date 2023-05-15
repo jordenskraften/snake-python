@@ -25,4 +25,6 @@ class KeyboardHandler:
                     self.snake.change_to = MovementDirection.LEFT
                 elif event.key == pygame.K_RIGHT and self.snake.direction != MovementDirection.LEFT:
                     self.snake.change_to = MovementDirection.RIGHT
+                elif event.key == pygame.K_SPACE:
+                    self.snake.damage_immune_ability()
  

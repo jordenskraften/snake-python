@@ -30,6 +30,15 @@ class Snake:
         self.score = 0  
         self.boss = None
         self.boss_mode = False
+        self.time_tick = 0
+        self.damage_immune_mode = False
+        self.damage_immune_time = 0
+        self.base_ms = 1
+        self.current_ms = self.base_ms
+        self.damage_immune_ability_cd = 120
+        self.damage_immune_ability_current_cd = 0
+        #---------
+        self.snake_lives = 5
     
     def respawn(self):
         self.snake_head_pos = [self.snake_spawn_x, self.snake_spawn_y]
@@ -48,17 +57,20 @@ class Snake:
 
     def change_head_position(self):
         if self.direction == MovementDirection.RIGHT:
-            self.snake_head_pos[0] += 1
+            self.snake_head_pos[0] += self.current_ms
         elif self.direction == MovementDirection.LEFT:
-            self.snake_head_pos[0] -= 1
+            self.snake_head_pos[0] -= self.current_ms
         elif self.direction == MovementDirection.UP:
-            self.snake_head_pos[1] -= 1
+            self.snake_head_pos[1] -= self.current_ms
         elif self.direction == MovementDirection.DOWN:
-            self.snake_head_pos[1] += 1
+            self.snake_head_pos[1] += self.current_ms
 
     def snake_body_mechanism(self, food): 
-        new_head_pos = self.snake_head_pos[:] 
-        if new_head_pos[0] == food.food_pos[0] and new_head_pos[1] == food.food_pos[1]: 
+        new_head_pos = self.snake_head_pos[:]  
+        if (
+            abs(new_head_pos[0] - food.food_pos[0]) < 1 and
+            abs(new_head_pos[1] - food.food_pos[1]) < 1  
+        ):  
             food.food_pos = food.renew_pos()
             self.score += 1
             if self.boss != None:
@@ -103,11 +115,11 @@ class Snake:
 
     def check_for_snakes_bodies_collision(self, game_over):
         obstacles = self.collisions.get_obstacles()
-        for block in obstacles: 
+        for block in obstacles:  
             if (
-                block[0] == self.snake_head_pos[0] and
-                block[1] == self.snake_head_pos[1]
-            ):
+                abs(block[0] - self.snake_head_pos[0]) < 1 and
+                abs(block[1] - self.snake_head_pos[1]) < 1  
+            ):  
                 game_over = True
                 return game_over 
         return game_over
@@ -148,7 +160,7 @@ class Snake:
                 end[1] - start[1]
         ) 
         self.ai_change_direction(new_dir)
-
+ 
     def ai_change_direction(self, vector):
         x, y = vector
         changed_pos = False
@@ -222,5 +234,38 @@ class Snake:
                 self.direction = MovementDirection.LEFT
             else:
                 self.direction = MovementDirection.RIGHT
- 
+#------------------
+#работа с таймерами
+
+    def timer_tick(self):
+        self.time_tick += 1 
+        self.damage_immune_ability_current_cd -= 1
+        if self.damage_immune_ability_current_cd <= 0:
+            self.damage_immune_ability_current_cd = 0
+        self.damage_immune_event()
+
+    def damage_immune_event(self):
+        self.damage_immune_time -= 1
+        if self.damage_immune_mode == True: 
+            self.current_ms = self.base_ms + 0.5
+            if self.damage_immune_time %3 == 0:
+                self.color = (255, 255, 255)  
+            else:
+                self.color = (0, 0, 0)  
+        else:
+            self.color = (0, 0, 255)  
+        if self.damage_immune_time <= 0:
+            self.damage_immune_time = 0
+            self.damage_immune_mode = False
+            self.current_ms = self.base_ms  
+
+    def damage_immune_ability(self):  
+        if self.damage_immune_ability_current_cd <= 0 and self.damage_immune_mode == False:
+            self.damage_immune_ability_current_cd = self.damage_immune_ability_cd  
+            self.damage_immune_mode = True
+            self.damage_immune_time = 30
+
+    def damage_immune_after_hit(self): 
+        self.damage_immune_mode = True
+        self.damage_immune_time = 30
 

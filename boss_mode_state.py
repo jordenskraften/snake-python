@@ -7,6 +7,7 @@ from renderer import Renderer
 from keyboard_inputs import KeyboardHandler
 from game_state import GameState
 from collisions import Collisiions
+from global_timer import GlobalTimer
 
 
 class BossModeState(GameState):
@@ -21,14 +22,17 @@ class BossModeState(GameState):
         self.food = Food(self.playable_area_rect, self.collisions) 
         self.renderer = Renderer(self.surface, self.food)
  
+        self.timer = GlobalTimer()
         self.snake = Snake(self.surface, self.playable_area_rect, self.collisions, self.food) 
-        self.boss = Boss(self.surface, self.playable_area_rect, self.collisions, self.snake, self.renderer)
+        self.boss = Boss(self.surface, self.playable_area_rect, self.collisions, self.snake, self.renderer, self.timer)
         self.snake.boss = self.boss
         self.collisions.add_snake_to_list(self.snake) 
  
         self.keyboard = KeyboardHandler(self.snake) 
         self.renderer.add_snake(self.snake)
-        self.renderer.set_boss(self.boss) 
+        self.renderer.set_boss(self.boss)  
+        self.timer.attach(self.boss) 
+        self.timer.attach(self.snake) 
 
     def enter(self, context): 
         self.context = context
@@ -41,14 +45,17 @@ class BossModeState(GameState):
         self.food = Food(self.playable_area_rect, self.collisions) 
         self.renderer = Renderer(self.surface, self.food)
  
+        self.timer = GlobalTimer()
         self.snake = Snake(self.surface, self.playable_area_rect, self.collisions, self.food) 
-        self.boss = Boss(self.surface, self.playable_area_rect, self.collisions, self.snake, self.renderer)
+        self.boss = Boss(self.surface, self.playable_area_rect, self.collisions, self.snake, self.renderer, self.timer)
         self.snake.boss = self.boss
         self.collisions.add_snake_to_list(self.snake) 
  
         self.keyboard = KeyboardHandler(self.snake) 
         self.renderer.add_snake(self.snake)
-        self.renderer.set_boss(self.boss) 
+        self.renderer.set_boss(self.boss)  
+        self.timer.attach(self.boss) 
+        self.timer.attach(self.snake) 
 
     def exit(self): 
         self.WIDTH = None
@@ -61,6 +68,7 @@ class BossModeState(GameState):
         self.playable_area_rect = None
         self.keyboard = None
         self.renderer = None  
+        self.timer = None
 
 
     def action(self): 
@@ -75,14 +83,19 @@ class BossModeState(GameState):
 
         self.collisions.update_obstacles()
  
-        self.boss.actions(self.food)  
+        self.boss.actions()  
 
         game_over = self.snake.actions(self.food) 
         if game_over == True:
             self.context.change_state(self.context.game_state_list.main_menu)
             return  
 
-        self.renderer.draw_game_objects(self.snake.score, 0)  
+        self.renderer.draw_game_objects( 
+                                        0, None, False, 
+                                        self.boss.boss_lives, 
+                                        self.snake.snake_lives, 
+                                        self.snake.damage_immune_ability_current_cd
+                                        )
         #------------выход в меню 
         for event in events:
             if event.type == pygame.QUIT:
@@ -92,7 +105,7 @@ class BossModeState(GameState):
                     self.context.change_state(self.context.game_state_list.main_menu)
                     return  
         # Установка максимальной частоты кадров  
-
+        self.timer.tick()
         self.clock.tick(10) 
 
         pygame.display.flip() 

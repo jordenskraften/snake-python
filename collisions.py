@@ -26,7 +26,10 @@ class Collisiions:
             for snake2 in self.snakes: 
                 if (snake2 != snake):
                     for segment in snake2.snake_body:
-                        if snake.snake_body[0][0] == segment[0] and snake.snake_body[0][1] == segment[1]:  
+                        if (
+                            abs(snake.snake_body[0][0] - segment[0]) < 1 and
+                            abs(snake.snake_body[0][1] - segment[1]) < 1
+                        ):  
                             return True
         return False
 
