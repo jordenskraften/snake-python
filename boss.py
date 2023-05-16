@@ -4,6 +4,7 @@ from keyboard_inputs import MovementDirection
 from snake import Snake
 from random import randrange
 from boss_projectile import Boss_Projectile
+from boss_voidzone import Boss_Voidzone 
 import math
 class Boss:
     def __init__(self, surface, game_rect, collisions, snake, renderer, global_timer ): 
@@ -37,7 +38,7 @@ class Boss:
         self.charging_spell = False  
         self.charging_spell_timer = 0
         #------  
-        self.boss_lives = 30
+        self.boss_lives = 35
  
     def add_movespeed(self, val):
         self.base_movespeed += val
@@ -235,13 +236,11 @@ class Boss:
             r = randrange(0, 3)
             match r:
                 case 0:
-                    self.shoot()
+                    self.charge()
                 case 1:
-                    self.charge()
-                case 2:
                     self.shoot()
-                case 3:
-                    self.charge()
+                case 2:
+                    self.void_zone() 
                 case _:
                     pass 
 
@@ -255,20 +254,20 @@ class Boss:
     def shoot(self):
         self.create_floating_text("SHOOTING", True) 
         dir = (1,0)
-        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir)
-        self.global_timer.attach(pj)
+        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir) 
         dir = (-1,0)
-        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir)
-        self.global_timer.attach(pj)
+        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir) 
         dir = (0,1)
-        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir)
-        self.global_timer.attach(pj)
+        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir) 
         dir = (0,-1)
-        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir)
-        self.global_timer.attach(pj)
+        pj = Boss_Projectile(200, self, self.snake, self.center_pos, dir) 
 
     def void_zone(self):
         self.create_floating_text("casting VOID ZONES", True)  
+        x = self.snake.snake_head_pos[0] 
+        y = self.snake.snake_head_pos[1]
+        pos = [x,y]
+        vz = Boss_Voidzone(30, self, self.snake, pos) 
 
     def charge(self):
         self.create_floating_text("casting CHARGE!", True)  

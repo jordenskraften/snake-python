@@ -76,8 +76,9 @@ class BossModeState(GameState):
         self.surface.fill((0,0,0))   
         pygame.draw.rect(self.surface, (25,25,25), self.playable_area_rect)
 
-        events = pygame.event.get()
-
+        events = pygame.event.get() 
+        self.timer.tick()
+        
         self.keyboard.handle_events(events) 
  
 
@@ -86,6 +87,8 @@ class BossModeState(GameState):
         self.boss.actions()  
 
         game_over = self.snake.actions(self.food) 
+        if self.snake.snake_lives <= 0:
+            game_over = True
         if game_over == True:
             self.context.change_state(self.context.game_state_list.main_menu)
             return  
@@ -104,8 +107,7 @@ class BossModeState(GameState):
                 if event.key == pygame.K_ESCAPE:
                     self.context.change_state(self.context.game_state_list.main_menu)
                     return  
-        # Установка максимальной частоты кадров  
-        self.timer.tick()
+        # Установка максимальной частоты кадров   
         self.clock.tick(10) 
 
         pygame.display.flip() 

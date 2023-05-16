@@ -32,13 +32,14 @@ class Snake:
         self.boss_mode = False
         self.time_tick = 0
         self.damage_immune_mode = False
+        self.damage_immune_is_after_hit = False
         self.damage_immune_time = 0
         self.base_ms = 1
         self.current_ms = self.base_ms
         self.damage_immune_ability_cd = 120
         self.damage_immune_ability_current_cd = 0
         #---------
-        self.snake_lives = 5
+        self.snake_lives = 10
     
     def respawn(self):
         self.snake_head_pos = [self.snake_spawn_x, self.snake_spawn_y]
@@ -104,13 +105,13 @@ class Snake:
                 #в босс моде мы крч если с границей сталкиваемся то не подыхаемся
                 #а тпшимся с обратной стороны 
                 if self.snake_head_pos[0] > self.COORDS_WIDTH:
-                    self.snake_head_pos[0] = 0 
-                elif self.snake_head_pos[0] <= 0: 
-                    self.snake_head_pos[0] = self.COORDS_WIDTH  
-                elif self.snake_head_pos[1] > self.COORDS_HEIGHT:
-                    self.snake_head_pos[1] = 0 
-                elif self.snake_head_pos[1] <= 0:
-                    self.snake_head_pos[1] = self.COORDS_HEIGHT
+                    self.snake_head_pos[0] = -1 
+                elif self.snake_head_pos[0] < -1: 
+                    self.snake_head_pos[0] = self.COORDS_WIDTH + 1  
+                elif self.snake_head_pos[1] > self.COORDS_HEIGHT + 1:
+                    self.snake_head_pos[1] = -1 
+                elif self.snake_head_pos[1] < -1:
+                    self.snake_head_pos[1] = self.COORDS_HEIGHT + 1
         return game_over
 
     def check_for_snakes_bodies_collision(self, game_over):
@@ -248,16 +249,20 @@ class Snake:
         self.damage_immune_time -= 1
         if self.damage_immune_mode == True: 
             self.current_ms = self.base_ms + 0.5
-            if self.damage_immune_time %3 == 0:
-                self.color = (255, 255, 255)  
+            if self.damage_immune_time %3 == 0: 
+                self.color = (255, 255, 255)   
             else:
-                self.color = (0, 0, 0)  
+                if self.damage_immune_is_after_hit == False:
+                    self.color = (0, 0, 0)  
+                else:
+                    self.color = (255, 255, 0)   
         else:
             self.color = (0, 0, 255)  
         if self.damage_immune_time <= 0:
             self.damage_immune_time = 0
             self.damage_immune_mode = False
             self.current_ms = self.base_ms  
+            self.damage_immune_is_after_hit = False
 
     def damage_immune_ability(self):  
         if self.damage_immune_ability_current_cd <= 0 and self.damage_immune_mode == False:
@@ -268,4 +273,5 @@ class Snake:
     def damage_immune_after_hit(self): 
         self.damage_immune_mode = True
         self.damage_immune_time = 30
+        self.damage_immune_is_after_hit = True
 

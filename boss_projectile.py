@@ -10,6 +10,7 @@ class Boss_Projectile(TimedObject):
         self.boss = boss
         self.snake = snake
         self.speed = 1.5
+        self.boss.global_timer.attach(self)
         
     def enter(self):
         pass
