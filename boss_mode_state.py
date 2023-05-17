@@ -56,6 +56,9 @@ class BossModeState(GameState):
         self.renderer.set_boss(self.boss)  
         self.timer.attach(self.boss) 
         self.timer.attach(self.snake) 
+        pygame.mixer.init()
+        pygame.mixer.music.load("sounds/boss_mode_music.mp3")
+        pygame.mixer.music.play(-1)
 
     def exit(self): 
         self.WIDTH = None
@@ -69,6 +72,7 @@ class BossModeState(GameState):
         self.keyboard = None
         self.renderer = None  
         self.timer = None
+        pygame.mixer.music.stop()
 
 
     def action(self): 

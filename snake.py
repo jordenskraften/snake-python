@@ -104,14 +104,14 @@ class Snake:
             else:
                 #в босс моде мы крч если с границей сталкиваемся то не подыхаемся
                 #а тпшимся с обратной стороны 
-                if self.snake_head_pos[0] > self.COORDS_WIDTH:
+                if self.snake_head_pos[0] >= self.COORDS_WIDTH:
                     self.snake_head_pos[0] = -1 
-                elif self.snake_head_pos[0] < -1: 
-                    self.snake_head_pos[0] = self.COORDS_WIDTH + 1  
-                elif self.snake_head_pos[1] > self.COORDS_HEIGHT + 1:
+                elif self.snake_head_pos[0] <= -1: 
+                    self.snake_head_pos[0] = self.COORDS_WIDTH  
+                elif self.snake_head_pos[1] >= self.COORDS_HEIGHT:
                     self.snake_head_pos[1] = -1 
-                elif self.snake_head_pos[1] < -1:
-                    self.snake_head_pos[1] = self.COORDS_HEIGHT + 1
+                elif self.snake_head_pos[1] <= -1:
+                    self.snake_head_pos[1] = self.COORDS_HEIGHT 
         return game_over
 
     def check_for_snakes_bodies_collision(self, game_over):
@@ -274,4 +274,8 @@ class Snake:
         self.damage_immune_mode = True
         self.damage_immune_time = 30
         self.damage_immune_is_after_hit = True
+
+    def set_new_space_ability_cd(self, value):
+        self.damage_immune_ability_cd = value
+        self.damage_immune_ability_current_cd = 0  
 

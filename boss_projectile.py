@@ -1,8 +1,8 @@
 from global_timer import TimedObject
-import pygame
+import pygame 
 
 class Boss_Projectile(TimedObject):
-    def __init__(self, lifetime, boss, snake, pos, dir):
+    def __init__(self, lifetime, boss, snake, pos, dir, return_back = False):
         super().__init__(lifetime)
         self.color = (255,0,0)
         self.pos = pos
@@ -10,6 +10,10 @@ class Boss_Projectile(TimedObject):
         self.boss = boss
         self.snake = snake
         self.speed = 1.5
+        if return_back == True:
+            self.speed = 2
+        self.return_back = return_back
+        self.enabled_back_path = False
         self.boss.global_timer.attach(self)
         
     def enter(self):
@@ -20,15 +24,46 @@ class Boss_Projectile(TimedObject):
         self.pos = [999,999]
         self.dir = [0,0]
         del(self)
-  
+
+    def limit_number(self, value, limit):
+        if value >= limit:
+            return limit
+        elif value <= -limit:
+            return -limit
+        else: 
+            return 0
+
     def timer_tick(self):
         self.lifetime -= 1
         if self.lifetime <= 0:
-            self.death() 
-        self.pos = (
-                    self.pos[0] + self.dir[0] * self.speed,
-                    self.pos[1] + self.dir[1] * self.speed, 
-                    ) 
+            if self.return_back == False:
+                self.death()
+            else:
+                if self.enabled_back_path == False:
+                    self.enabled_back_path = True
+                    self.return_back = False
+                    self.lifetime = 20
+        
+        if self.enabled_back_path == False:
+            self.pos = (
+                        self.pos[0] + self.dir[0] * self.speed,
+                        self.pos[1] + self.dir[1] * self.speed, 
+                        ) 
+        else:
+            n_x = self.boss.center_pos[0] - self.pos[0]
+            n_y = self.boss.center_pos[1] - self.pos[1]
+            n_x = self.limit_number(n_x, 1.5) 
+            n_y = self.limit_number(n_y, 1.5) 
+            self.dir = (n_x,n_y) 
+            self.pos = (
+                        self.pos[0] + self.dir[0] * self.speed,
+                        self.pos[1] + self.dir[1] * self.speed
+                        )  
+            if (
+                abs(self.boss.center_pos[0] - self.pos[0]) <= 8 and
+                abs(self.boss.center_pos[1] - self.pos[1]) <= 8 
+            ):
+                self.death()
         self.draw_obj()
         self.check_for_snakes_bodies_collision()
 
