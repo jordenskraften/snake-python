@@ -76,6 +76,9 @@ class Snake:
             self.score += 1
             if self.boss != None:
                 self.boss.injury()
+                #если змейка больше 12 то при поедании яблока в босс моде расти не надо дальше
+                if len(self.snake_body) >= 12:
+                    self.snake_body.pop()
         else: 
             self.snake_body.pop()
         self.snake_body.insert(0, new_head_pos) 

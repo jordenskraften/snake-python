@@ -5,6 +5,7 @@ from snake import Snake
 from random import randrange
 from boss_projectile import Boss_Projectile
 from boss_voidzone import Boss_Voidzone 
+from boss_laser_spell import BossLaserSpell
 import math
 class Boss:
     def __init__(self, surface, game_rect, collisions, snake, renderer, global_timer ): 
@@ -28,6 +29,10 @@ class Boss:
         self.target = None
         #-------------
         self.time_tick = 0   
+        self.base_abilities_cd = 0
+        self.active_abilities_cd = 0
+        self.base_abilities_cd_full = 40
+        self.active_abilities_cd_full = 80
         self.base_movespeed = 0.4
         self.movespeed_current = self.base_movespeed
         self.pause_boss_timer = 0
@@ -38,6 +43,8 @@ class Boss:
         #----------------
         self.charging_spell = False  
         self.charging_spell_timer = 0
+        #------  
+        self.in_active_spell_action = False
         #------  
         self.boss_lives = 30
         self.boss_phase = 0
@@ -58,7 +65,8 @@ class Boss:
         self.boss_touch_snake = pygame.mixer.Sound("sounds/boss_touch_snake.mp3")
         self.boss_touch_snake2 = pygame.mixer.Sound("sounds/boss_touch_snake2.mp3")
         self.boss_touch_snake3 = pygame.mixer.Sound("sounds/boss_touch_snake3.mp3")
-        self.boss_touch_snake4 = pygame.mixer.Sound("sounds/boss_touch_snake4.mp3")
+
+        self.boss_laser = pygame.mixer.Sound("sounds/boss_laser.mp3")
          
 
     def add_movespeed(self, val):
@@ -93,8 +101,8 @@ class Boss:
 
 
     def injury(self):
-        #реакция на то когда игрок съедает яблоко
-        self.pause_boss_timer = 8
+        #реакция на то когда игрок съедает яблоко 
+        self.pause_boss_timer += 8
         self.time_tick -= 9 #чтобы после дамага босс сразу не кастовал добавим к гкд паузу инжури стейта
         self.injured = True 
         self.add_movespeed(0.05)   
@@ -178,7 +186,7 @@ class Boss:
             ) 
   
     def boss_touch_snake_emotion(self):
-        r = randrange(0,4) 
+        r = randrange(0,3) 
         match r:
             case 0:
                 self.create_floating_text("Haha, catched!")
@@ -188,10 +196,7 @@ class Boss:
                 self.boss_touch_snake2.play()
             case 2:
                 self.create_floating_text("Mmm, yummy snake!")
-                self.boss_touch_snake3.play()
-            case 3:
-                self.create_floating_text("Don't run away!")
-                self.boss_touch_snake4.play()
+                self.boss_touch_snake3.play() 
             case _:
                 self.create_floating_text("Haha, catched!")
                 self.boss_touch_snake.play()
@@ -219,10 +224,10 @@ class Boss:
             return False
 
     def actions(self):    
-        if self.paused == False:
+        if self.paused == False and self.in_active_spell_action == False:
             self.change_to = self.ai_movement() 
             self.change_boss_center_position() 
-            self.check_for_snakes_bodies_collision() 
+        self.check_for_snakes_bodies_collision() 
   
     def ai_movement(self): 
         self.create_path()
@@ -283,14 +288,25 @@ class Boss:
         self.time_tick += 1
         self.boss_pause_event()
         self.collisions_and_injury_event()
-        self.boss_abilities_casting_event()
+        self.boss_base_abilities_casting_event()
+        self.boss_active_abilities_casting_event()
 
 
-    def boss_abilities_casting_event(self):
-        if self.time_tick >= 40 and self.paused == False and self.injured == False:    
-            self.time_tick = 0
-            self.boss_select_ability_action() 
+    def boss_base_abilities_casting_event(self):
+        self.base_abilities_cd += 1
+        if self.base_abilities_cd >= self.base_abilities_cd_full and self.paused == False and self.injured == False and self.in_active_spell_action == False:     
+                self.base_abilities_cd = 0  
+                self.boss_select_base_ability_action() 
         self.boss_charging_spell_effect()
+        
+    def boss_active_abilities_casting_event(self):
+        self.active_abilities_cd += 1
+        if self.active_abilities_cd >= self.active_abilities_cd_full and self.paused == False and self.injured == False and self.in_active_spell_action == False:     
+                self.active_abilities_cd = 0
+                self.boss_select_active_ability_action()  
+ 
+    def boss_select_active_ability_action(self):
+        self.laser()
 
     def boss_pause_event(self):
         #--------------- 
@@ -319,7 +335,7 @@ class Boss:
                 self.color = self.color_base
 #---------------
 #spells
-    def boss_select_ability_action(self):
+    def boss_select_base_ability_action(self):
         #тут нарн в зависимости от дистанции будем стрелять, телепортироваться или еще че делать 
         if self.pause_boss_timer <= 0: 
             x1 = self.center_pos[0]
@@ -330,11 +346,7 @@ class Boss:
              
             if distance < 12:
                 if self.boss_phase <= 1:
-                    self.charge() 
-                elif self.boss_phase == 2:
-                    self.charge_lvl2() 
-                elif self.boss_phase == 3:
-                    self.charge_lvl3() 
+                    self.charge()  
             elif 12 < distance < 25:
                 if self.boss_phase <= 1:
                     self.shoot() 
@@ -357,15 +369,7 @@ class Boss:
 
     def charge(self):
         self.create_floating_text("casting CHARGE!", True)  
-        self.boss_charging_spell_activate(4)
-
-    def charge_lvl2(self):
-        self.create_floating_text("casting CHARGE lvl2!", True)  
-        self.boss_charging_spell_activate(7)
-
-    def charge_lvl3(self):
-        self.create_floating_text("casting CHARGE lvl2!", True)  
-        self.boss_charging_spell_activate(9)
+        self.boss_charging_spell_activate(4) 
 
     def shoot(self):
         self.create_floating_text("SHOOTING", True) 
@@ -498,3 +502,14 @@ class Boss:
         if self.charging_spell_timer < 0:
             self.charging_spell = False
             self.charging_spell_timer = 0
+#---------------------------
+#active spells
+    def laser(self):
+        self.create_floating_text("casting Laser!")   
+        self.boss_laser.play()
+        self.in_active_spell_action = True
+        laser_spell = BossLaserSpell(
+                                    30, 25, 3, 
+                                    (self.COORDS_WIDTH // 2, self.COORDS_HEIGHT // 2), 
+                                    self, self.snake
+                                    )
