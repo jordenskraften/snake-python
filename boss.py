@@ -10,6 +10,7 @@ from boss_minion import BossMinion
 from boss_road_spell import BossRoadSpell
 from boss_pentagram import BossPentagram
 from boss_wave_spell import BossWaveSpell
+from boss_death_cutscene import BossDeathCutscene
 import math
 class Boss:
     def __init__(self, surface, game_rect, collisions, snake, renderer, global_timer ): 
@@ -57,13 +58,14 @@ class Boss:
         #------  
         self.in_active_spell_action = False
         #------  
-        self.boss_lives = 40
+        self.boss_lives = 35
         self.boss_phase = 1 #фаза
         self.boss_phase_2_enabled = False
         self.boss_phase_3_enabled = False
         self.boss_phase_4_enabled = False
         self.size = 1
         #-----
+        self.defeated = False
         #sounds 
         self.boss_injured_sound = pygame.mixer.Sound("sounds/boss_injured_sound.mp3")
         self.boss_injured_sound2 = pygame.mixer.Sound("sounds/boss_injured_sound2.mp3")
@@ -77,6 +79,7 @@ class Boss:
         self.boss_touch_snake2 = pygame.mixer.Sound("sounds/boss_touch_snake2.mp3")
         self.boss_touch_snake3 = pygame.mixer.Sound("sounds/boss_touch_snake3.mp3")
         self.boss_touch_snake4 = pygame.mixer.Sound("sounds/boss_touch_snake4.mp3")
+        self.boss_touch_snake5 = pygame.mixer.Sound("sounds/boss_touch_snake5.mp3")
 
         self.boss_laser = pygame.mixer.Sound("sounds/boss_laser.mp3")
  
@@ -87,6 +90,8 @@ class Boss:
         self.boss_pentagram = pygame.mixer.Sound("sounds/boss_pentagram.mp3") 
  
         self.boss_wave = pygame.mixer.Sound("sounds/boss_wave.mp3")
+
+        self.boss_death = pygame.mixer.Sound("sounds/boss_death.mp3")
          
 
     def add_movespeed(self, val):
@@ -121,18 +126,19 @@ class Boss:
 
 
     def injury(self):
-        #реакция на то когда игрок съедает яблоко 
-        self.pause_boss_timer += 8
-        self.time_tick -= 9 #чтобы после дамага босс сразу не кастовал добавим к гкд паузу инжури стейта
-        self.injured = True 
-        self.add_movespeed(0.05)   
-        self.boss_lives -= 1
-        if self.boss_lives <= 0:
-            self.death()
-        else:
-            boss_lvlup = self.change_boss_phase() 
-            if boss_lvlup == False:
-                self.injury_emotion()  
+        if self.defeated == False:
+            #реакция на то когда игрок съедает яблоко 
+            self.pause_boss_timer += 8
+            self.time_tick -= 9 #чтобы после дамага босс сразу не кастовал добавим к гкд паузу инжури стейта
+            self.injured = True 
+            self.add_movespeed(0.05)   
+            self.boss_lives -= 1
+            if self.boss_lives <= 0:
+                self.death()
+            else:
+                boss_lvlup = self.change_boss_phase() 
+                if boss_lvlup == False:
+                    self.injury_emotion()  
    
     def change_boss_phase(self):
         result = False 
@@ -167,7 +173,10 @@ class Boss:
         return result
 
     def death(self):
-        pass
+        if self.defeated == False:
+            self.defeated = True
+            self.color = (125,0,0)
+            cutscene = BossDeathCutscene([self.COORDS_WIDTH // 2, self.COORDS_HEIGHT // 2], self)
 
     def change_boss_center_position(self): 
         if self.direction == MovementDirection.RIGHT:
@@ -206,7 +215,7 @@ class Boss:
             ) 
   
     def boss_touch_snake_emotion(self):
-        r = randrange(0,4) 
+        r = randrange(0,5) 
         match r:
             case 0:
                 self.create_floating_text("Haha, catched!")
@@ -220,6 +229,9 @@ class Boss:
             case 3:
                 self.create_floating_text("Did you like it?")
                 self.boss_touch_snake4.play()
+            case 4:
+                self.create_floating_text("That's power!")
+                self.boss_touch_snake5.play()
             case _:
                 self.create_floating_text("Haha, catched!")
                 self.boss_touch_snake.play()
@@ -230,7 +242,7 @@ class Boss:
 
     def collision_with_snake(self):
         #if self.paused == False and self.injured == False and self.snake.damage_immune_mode == False: 
-        if self.snake.damage_immune_mode == False: 
+        if self.snake.damage_immune_mode == False and self.defeated == False: 
             #реакция на то когда босс догнал змею
             self.collision_cooldown_timer, self.pause_boss_timer = 21, 21
             self.collision_on_cooldown = True   
@@ -252,10 +264,11 @@ class Boss:
             return False
 
     def actions(self):    
-        if self.paused == False and self.in_active_spell_action == False:
-            self.change_to = self.ai_movement() 
-            self.change_boss_center_position() 
-        self.check_for_snakes_bodies_collision() 
+        if self.defeated == False:
+            if self.paused == False and self.in_active_spell_action == False:
+                self.change_to = self.ai_movement() 
+                self.change_boss_center_position() 
+            self.check_for_snakes_bodies_collision() 
   
     def ai_movement(self): 
         self.create_path()
@@ -314,12 +327,13 @@ class Boss:
 #------------------- 
     def timer_tick(self):
         self.time_tick += 1
-        self.boss_pause_event()
-        self.collisions_and_injury_event()
-        self.boss_base_abilities_casting_event()
-        self.boss_active_abilities_casting_event()
-        self.boss_minions_spell_casting_event() 
-        self.boss_ultimate_spell_casting_event() 
+        if self.defeated == False:
+            self.boss_pause_event()
+            self.collisions_and_injury_event()
+            self.boss_base_abilities_casting_event()
+            self.boss_active_abilities_casting_event()
+            self.boss_minions_spell_casting_event() 
+            self.boss_ultimate_spell_casting_event() 
 
     def boss_base_abilities_casting_event(self):
         self.base_abilities_cd += 1

@@ -39,7 +39,7 @@ class Snake:
         self.damage_immune_ability_cd = 120
         self.damage_immune_ability_current_cd = 0
         #---------
-        self.snake_lives = 1511
+        self.snake_lives = 15
     
     def respawn(self):
         self.snake_head_pos = [self.snake_spawn_x, self.snake_spawn_y]
@@ -128,7 +128,7 @@ class Snake:
                     game_over = True
                     return game_over 
                 else:
-                    if self.damage_immune_mode == False:
+                    if self.damage_immune_mode == False and self.boss.defeated == False:
                         if len(self.snake_body) >= 2:
                             self.snake_body.pop()
                         self.damage_immune_after_hit()

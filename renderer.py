@@ -69,6 +69,10 @@ class Renderer:
         score = font.render("Player score: " + str(score_val), True, (255, 255, 255))
         self.surface.blit(score, (500, 10)) 
  
+    def display_score_ai(self, score_val):
+        font = pygame.font.SysFont('arial', 20)
+        score = font.render("AI-1 score: " + str(score_val), True, (255, 255, 255))
+        self.surface.blit(score, (100, 10)) 
 
     def display_score_ai2(self, score_val):
         font = pygame.font.SysFont('arial', 20)
