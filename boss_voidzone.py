@@ -36,11 +36,11 @@ class Boss_Voidzone(TimedObject):
         self.draw_obj() 
 
     def explosion(self):  
-        if 3 < self.lifetime <= 7: 
+        if 2 < self.lifetime <= 9: 
             self.size = 2
             self.color = (225,225,225, 0.5)
             self.check_for_snakes_bodies_collision() 
-        elif self.lifetime <= 3:   
+        elif self.lifetime <= 2:   
             self.color = (135,135,135, 0.5)
 
     def check_for_snakes_bodies_collision(self): 

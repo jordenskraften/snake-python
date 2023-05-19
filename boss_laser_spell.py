@@ -74,10 +74,10 @@ class BossLaserSpell(TimedObject):
 
     def death(self):
         self.boss.global_timer.detach(self) 
-        self.boss.in_active_spell_action = False 
-        #кд добавим а то лазер долгий сук
-        self.boss.base_abilities_cd = 0 #self.boss.base_abilities_cd_full //2
-        self.boss.active_abilities_cd = 0 #self.boss.active_abilities_cd_full 
+        self.boss.in_active_spell_action = False  
+        self.boss.base_abilities_cd = 0  
+        self.boss.active_abilities_cd = 0  
+        self.boss.boss_ultimate_ability_cd = self.boss.boss_ultimate_ability_cd_full - (self.boss.boss_ultimate_ability_cd_full // 3) 
         self.boss.minions_cd = 130
         del(self)
 

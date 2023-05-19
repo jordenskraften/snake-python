@@ -8,6 +8,8 @@ from boss_voidzone import Boss_Voidzone
 from boss_laser_spell import BossLaserSpell
 from boss_minion import BossMinion
 from boss_road_spell import BossRoadSpell
+from boss_pentagram import BossPentagram
+from boss_wave_spell import BossWaveSpell
 import math
 class Boss:
     def __init__(self, surface, game_rect, collisions, snake, renderer, global_timer ): 
@@ -35,7 +37,10 @@ class Boss:
         self.active_abilities_cd = 0
         self.base_abilities_cd_full = 40
         self.active_abilities_cd_full = 130
+        self.boss_ultimate_ability_cd = 0
+        self.boss_ultimate_ability_cd_full = 200
         self.current_active_ability = 0
+        self.current_ultimate_ability = 0
         self.minions_cd = 135 #начнем за 15 тиков до миньонов
         self.minions_cd_full = 150
         #---------
@@ -53,7 +58,7 @@ class Boss:
         self.in_active_spell_action = False
         #------  
         self.boss_lives = 40
-        self.boss_phase = 3 #фаза
+        self.boss_phase = 1 #фаза
         self.boss_phase_2_enabled = False
         self.boss_phase_3_enabled = False
         self.boss_phase_4_enabled = False
@@ -71,6 +76,7 @@ class Boss:
         self.boss_touch_snake = pygame.mixer.Sound("sounds/boss_touch_snake.mp3")
         self.boss_touch_snake2 = pygame.mixer.Sound("sounds/boss_touch_snake2.mp3")
         self.boss_touch_snake3 = pygame.mixer.Sound("sounds/boss_touch_snake3.mp3")
+        self.boss_touch_snake4 = pygame.mixer.Sound("sounds/boss_touch_snake4.mp3")
 
         self.boss_laser = pygame.mixer.Sound("sounds/boss_laser.mp3")
  
@@ -78,7 +84,9 @@ class Boss:
 
         self.boss_road = pygame.mixer.Sound("sounds/boss_road.mp3")
  
-        self.boss_pentagram = pygame.mixer.Sound("sounds/boss_pentagram.mp3")
+        self.boss_pentagram = pygame.mixer.Sound("sounds/boss_pentagram.mp3") 
+ 
+        self.boss_wave = pygame.mixer.Sound("sounds/boss_wave.mp3")
          
 
     def add_movespeed(self, val):
@@ -198,17 +206,20 @@ class Boss:
             ) 
   
     def boss_touch_snake_emotion(self):
-        r = randrange(0,3) 
+        r = randrange(0,4) 
         match r:
             case 0:
                 self.create_floating_text("Haha, catched!")
                 self.boss_touch_snake.play()
             case 1:
-                self.create_floating_text("Did you like it?")
+                self.create_floating_text("Huh?")
                 self.boss_touch_snake2.play()
             case 2:
                 self.create_floating_text("Mmm, yummy snake!")
                 self.boss_touch_snake3.play() 
+            case 3:
+                self.create_floating_text("Did you like it?")
+                self.boss_touch_snake4.play()
             case _:
                 self.create_floating_text("Haha, catched!")
                 self.boss_touch_snake.play()
@@ -308,6 +319,7 @@ class Boss:
         self.boss_base_abilities_casting_event()
         self.boss_active_abilities_casting_event()
         self.boss_minions_spell_casting_event() 
+        self.boss_ultimate_spell_casting_event() 
 
     def boss_base_abilities_casting_event(self):
         self.base_abilities_cd += 1
@@ -321,6 +333,18 @@ class Boss:
         if self.active_abilities_cd >= self.active_abilities_cd_full and self.paused == False and self.injured == False and self.in_active_spell_action == False:     
                 self.active_abilities_cd = 0
                 self.boss_select_active_ability_action()  
+                
+    def boss_minions_spell_casting_event(self):
+        self.minions_cd += 1
+        if self.minions_cd >= self.minions_cd_full and self.paused == False and self.injured == False and self.in_active_spell_action == False:     
+                self.minions_cd = 0  
+                self.minions()  
+
+    def boss_ultimate_spell_casting_event(self):
+        self.boss_ultimate_ability_cd += 1
+        if self.boss_ultimate_ability_cd >= self.boss_ultimate_ability_cd_full and self.paused == False and self.injured == False and self.in_active_spell_action == False:     
+                self.boss_ultimate_ability_cd = 0
+                self.boss_select_ultimate_ability_action()  
    
     def boss_pause_event(self):
         #--------------- 
@@ -529,14 +553,28 @@ class Boss:
         if self.boss_phase >= 2:  
             match self.current_active_ability:
                 case 0:
-                    self.road_spell()
+                    self.laser()
                 case 1:
                     self.road_spell()
                 case _:
                     self.laser() 
             self.current_active_ability += 1
-            if self.current_active_ability >= 3:
+            if self.current_active_ability >= 2:
                 self.current_active_ability = 0
+
+    def boss_select_ultimate_ability_action(self):
+        if self.boss_phase >= 4:  
+            self.wave_spell()
+        elif self.boss_phase == 3:
+            self.pentagram_spell()
+
+    def wave_spell(self):
+        self.in_active_spell_action = True
+        wave = BossWaveSpell([self.COORDS_WIDTH // 2, self.COORDS_HEIGHT // 2], self, self.snake)
+
+    def pentagram_spell(self):
+        self.in_active_spell_action = True
+        penta = BossPentagram(30, [self.COORDS_WIDTH // 2, self.COORDS_HEIGHT // 2], self, self.snake)
 
     def road_spell(self):
         self.in_active_spell_action = True
@@ -562,14 +600,7 @@ class Boss:
                                             (self.COORDS_WIDTH // 2, self.COORDS_HEIGHT // 2), 
                                             self, self.snake, 3
                                             )
-#-----------
-
-    def boss_minions_spell_casting_event(self):
-        self.minions_cd += 1
-        if self.minions_cd >= self.minions_cd_full and self.paused == False and self.injured == False and self.in_active_spell_action == False:     
-                self.minions_cd = 0  
-                self.minions()  
-
+#----------- 
     def minions(self): 
         self.boss_minions.play()
         lifetime = 70
