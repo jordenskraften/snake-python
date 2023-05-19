@@ -39,7 +39,7 @@ class Snake:
         self.damage_immune_ability_cd = 120
         self.damage_immune_ability_current_cd = 0
         #---------
-        self.snake_lives = 10
+        self.snake_lives = 1511
     
     def respawn(self):
         self.snake_head_pos = [self.snake_spawn_x, self.snake_spawn_y]
@@ -124,8 +124,16 @@ class Snake:
                 abs(block[0] - self.snake_head_pos[0]) < 1 and
                 abs(block[1] - self.snake_head_pos[1]) < 1  
             ):  
-                game_over = True
-                return game_over 
+                if self.boss == None:
+                    game_over = True
+                    return game_over 
+                else:
+                    if self.damage_immune_mode == False:
+                        if len(self.snake_body) >= 2:
+                            self.snake_body.pop()
+                        self.damage_immune_after_hit()
+                        self.snake_lives -= 1
+                        self.boss.boss_snake_eat_himself_emotion()
         return game_over
 
     def actions(self, food): 

@@ -1,6 +1,7 @@
 from global_timer import TimedObject
 import pygame 
-
+import math
+from global_timer import GlobalTimer
 class Boss_Projectile(TimedObject):
     def __init__(self, lifetime, boss, snake, pos, dir, return_back = False):
         super().__init__(lifetime)
@@ -42,7 +43,7 @@ class Boss_Projectile(TimedObject):
                 if self.enabled_back_path == False:
                     self.enabled_back_path = True
                     self.return_back = False
-                    self.lifetime = 20
+                    self.lifetime = 999
         
         if self.enabled_back_path == False:
             self.pos = (
@@ -50,22 +51,32 @@ class Boss_Projectile(TimedObject):
                         self.pos[1] + self.dir[1] * self.speed, 
                         ) 
         else:
-            n_x = self.boss.center_pos[0] - self.pos[0]
-            n_y = self.boss.center_pos[1] - self.pos[1]
-            n_x = self.limit_number(n_x, 1.5) 
-            n_y = self.limit_number(n_y, 1.5) 
-            self.dir = (n_x,n_y) 
-            self.pos = (
-                        self.pos[0] + self.dir[0] * self.speed,
-                        self.pos[1] + self.dir[1] * self.speed
-                        )  
-            if (
-                abs(self.boss.center_pos[0] - self.pos[0]) <= 8 and
-                abs(self.boss.center_pos[1] - self.pos[1]) <= 8 
-            ):
-                self.death()
+            #self.move_to_boss()
+            #if (
+               # abs(self.boss.center_pos[0] - self.pos[0]) <= 3 and
+                #abs(self.boss.center_pos[1] - self.pos[1]) <= 3 
+            #):
+            #давай тут лучше наспавним снарядов  
+            self.boss.shoot_single_projectile(self.pos, [0,1])
+            self.boss.shoot_single_projectile(self.pos, [0,-1])
+            self.boss.shoot_single_projectile(self.pos, [1,0])
+            self.boss.shoot_single_projectile(self.pos, [-1,0])
+            self.death()
         self.draw_obj()
         self.check_for_snakes_bodies_collision()
+
+    def move_to_boss(self):
+        target = self.boss.center_pos
+        d_x = target[0] - self.pos[0]
+        d_y = target[1] - self.pos[1]
+        distance = math.sqrt(d_x**2 + d_y**2)
+        step_x = d_x / distance 
+        step_y = d_y / distance 
+        dir = (step_x,step_y)   
+        self.pos = [
+                    self.pos[0] + dir[0] * self.speed,
+                    self.pos[1] + dir[1] * self.speed
+                    ]  
 
     def check_for_snakes_bodies_collision(self): 
         obstacles = self.boss.collisions.get_obstacles()
