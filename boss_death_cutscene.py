@@ -26,8 +26,9 @@ class BossDeathCutscene(TimedObject):
                 self.boss.center_pos = [9999,9999]  
                 font = pygame.font.SysFont('arial', 40)
                 score = font.render("You win!", True, (255, 255, 255))
-                self.boss.surface.blit(score, (300, 200))   
-            if self.lifetime <= 10:  
+                self.boss.surface.blit(score, (300, 200)) 
+                self.boss.snake.food.hide()  
+            if self.lifetime <= 15:  
                 if self.emotion_was_sayed2 == False: 
                     self.emotion_was_sayed2 = True
                     self.boss.aniki.play()
@@ -57,7 +58,8 @@ class BossDeathCutscene(TimedObject):
                 if self.emotion_was_sayed == False:
                     self.emotion_was_sayed = True
                     self.boss.boss_death.play()
-                    self.boss.create_floating_text("Okay, you got me!", True)   
+                    self.boss.create_floating_text("Okay, you got me!", True)  
+                    self.boss.snake.food.hide() 
                 #print("boss in center")
             else: 
                 #тута двигаем босса к центру 

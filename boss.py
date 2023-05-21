@@ -58,7 +58,7 @@ class Boss:
         #------  
         self.in_active_spell_action = False
         #------  
-        self.boss_lives = 36
+        self.boss_lives = 35
         self.boss_phase = 1 #фаза
         self.boss_phase_2_enabled = False
         self.boss_phase_3_enabled = False
