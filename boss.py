@@ -71,8 +71,7 @@ class Boss:
         self.boss_injured_sound2 = pygame.mixer.Sound("sounds/boss_injured_sound2.mp3")
         self.boss_injured_sound3 = pygame.mixer.Sound("sounds/boss_injured_sound3.mp3")
         self.boss_injured_sound4 = pygame.mixer.Sound("sounds/boss_injured_sound4.mp3")
-        self.boss_injured_sound5 = pygame.mixer.Sound("sounds/boss_injured_sound5.mp3")
-        self.boss_injured_sound6 = pygame.mixer.Sound("sounds/boss_injured_sound6.mp3")
+        self.boss_injured_sound5 = pygame.mixer.Sound("sounds/boss_injured_sound5.mp3") 
 
         self.boss_levelup_2 = pygame.mixer.Sound("sounds/boss_levelup_2.mp3")
         self.boss_levelup_3 = pygame.mixer.Sound("sounds/boss_levelup_3.mp3")
@@ -84,6 +83,7 @@ class Boss:
         self.boss_touch_snake4 = pygame.mixer.Sound("sounds/boss_touch_snake4.mp3")
         self.boss_touch_snake5 = pygame.mixer.Sound("sounds/boss_touch_snake5.mp3")
         self.boss_touch_snake6 = pygame.mixer.Sound("sounds/boss_touch_snake6.mp3")
+        self.boss_touch_snake7 = pygame.mixer.Sound("sounds/boss_touch_snake7.mp3")
 
         self.boss_laser = pygame.mixer.Sound("sounds/boss_laser.mp3")
  
@@ -115,7 +115,7 @@ class Boss:
         self.renderer.create_floating_text(pos, 1, text, down_dir)
    
     def injury_emotion(self):
-        r = randrange(0,6)
+        r = randrange(0,5)
         match r:
             case 0:
                 self.create_floating_text("Ouch, it hurts!") 
@@ -131,10 +131,7 @@ class Boss:
                 self.boss_injured_sound4.play()
             case 4:
                 self.create_floating_text("Don't touch me there!") 
-                self.boss_injured_sound5.play()
-            case 5:
-                self.create_floating_text("Do you like what you see?") 
-                self.boss_injured_sound6.play()
+                self.boss_injured_sound5.play() 
             case _:
                 self.create_floating_text("Ouch, it hurts!") 
                 self.boss_injured_sound.play()
@@ -230,7 +227,7 @@ class Boss:
             ) 
   
     def boss_touch_snake_emotion(self):
-        r = randrange(0,6) 
+        r = randrange(0,7) 
         match r:
             case 0:
                 self.create_floating_text("Haha, I caught you!")
@@ -250,6 +247,9 @@ class Boss:
             case 5:
                 self.create_floating_text("Oh yeah!")
                 self.boss_touch_snake6.play()
+            case 6:
+                self.create_floating_text("Do you like what you see?") 
+                self.boss_touch_snake7.play()
             case _:
                 self.create_floating_text("Haha, catched!")
                 self.boss_touch_snake.play()

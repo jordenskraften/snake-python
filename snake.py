@@ -39,7 +39,7 @@ class Snake:
         self.damage_immune_ability_cd = 120
         self.damage_immune_ability_current_cd = 0
         #---------
-        self.snake_lives = 14
+        self.snake_lives = 15
     
     def respawn(self):
         self.snake_head_pos = [self.snake_spawn_x, self.snake_spawn_y]
