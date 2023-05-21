@@ -36,6 +36,9 @@ class Food:
             new_food_pos = self.generate_random_food_pos()
         self.food_pos = new_food_pos 
         return self.food_pos
+
+    def hide(self):
+        self.food_pos = [22222,33333]
   
              
  

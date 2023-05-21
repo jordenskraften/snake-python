@@ -3,7 +3,7 @@ import math
 from global_timer import TimedObject
 class BossDeathCutscene(TimedObject):
     def __init__(self, map_center_pos, boss) -> None:
-        self.lifetime = 0 
+        self.lifetime = 999990 
         self.map_center_pos = map_center_pos  
         self.boss = boss 
         self.boss.global_timer.attach(self)
@@ -11,6 +11,7 @@ class BossDeathCutscene(TimedObject):
         self.boss.defeated = True
         self.boss_in_map_center = False 
         self.emotion_was_sayed = False   
+        self.emotion_was_sayed2 = False   
         #---------
         self.wave_points = []
         self.wave_segment_size = 3
@@ -21,11 +22,24 @@ class BossDeathCutscene(TimedObject):
 
         if self.boss_in_map_center == True:
             self.lifetime -= 1 
-            if self.lifetime <= 0:  
+            if self.lifetime <= 40:  
                 self.boss.center_pos = [9999,9999]  
                 font = pygame.font.SysFont('arial', 40)
                 score = font.render("You win!", True, (255, 255, 255))
                 self.boss.surface.blit(score, (300, 200))   
+            if self.lifetime <= 10:  
+                if self.emotion_was_sayed2 == False: 
+                    self.emotion_was_sayed2 = True
+                    self.boss.aniki.play()
+                self.boss.center_pos = [9999,9999]  
+                font = pygame.font.SysFont('arial', 20)
+                score = font.render("Thank you for your attention", True, (255, 255, 255))
+                self.boss.surface.blit(score, (300, 260))   
+                #-------- 
+                self.boss.center_pos = [9999,9999]  
+                font = pygame.font.SysFont('arial', 20)
+                score = font.render("created by Jordenskraften", True, (255, 255, 255))
+                self.boss.surface.blit(score, (300, 290))   
             else:    
                 if self.lifetime %3 == 0:
                     self.boss.color = (255,0,0)
@@ -39,13 +53,13 @@ class BossDeathCutscene(TimedObject):
                 abs(self.boss.center_pos[1] - self.map_center_pos[1]) <= 1
             ):
                 self.boss_in_map_center = True
-                self.lifetime = 70
+                self.lifetime = 110
                 if self.emotion_was_sayed == False:
                     self.emotion_was_sayed = True
                     self.boss.boss_death.play()
                     self.boss.create_floating_text("Okay, you got me!", True)   
                 #print("boss in center")
-            else:
+            else: 
                 #тута двигаем босса к центру 
                 d_x = self.map_center_pos[0] - self.boss.center_pos[0]  
                 d_y = self.map_center_pos[1] - self.boss.center_pos[1]  
@@ -57,6 +71,7 @@ class BossDeathCutscene(TimedObject):
                             self.boss.center_pos[0] + dir[0],
                             self.boss.center_pos[1] + dir[1]
                             ] 
+                self.boss.snake.food.hide()
         if len(self.wave_points) >= 1:
             for p in self.wave_points:
                 self.move_wave_segment(p)

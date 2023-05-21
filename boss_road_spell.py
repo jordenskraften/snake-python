@@ -13,6 +13,7 @@ class BossRoadSpell(TimedObject):
         self.boss_in_start_pos = False
         self.next_boss_pos = self.start_road_pos  
         self.emotion_was_sayed = False  
+        self.emotion2_was_sayed = False  
         self.road_was_created = False
         self.road_was_visualized = False
         self.ride_was_ended = False
@@ -36,6 +37,9 @@ class BossRoadSpell(TimedObject):
                     if self.road_was_created == True:
                         self.draw_road()
                     if self.road_was_visualized == True:
+                        if self.emotion2_was_sayed == False:
+                            self.emotion2_was_sayed  = True
+                            self.boss.boss_road.play()
                         self.ride_boss_to_point()
                 else:
                     self.lifetime = -9999
@@ -50,7 +54,7 @@ class BossRoadSpell(TimedObject):
                 if self.emotion_was_sayed == False:
                     self.emotion_was_sayed = True
                     self.boss.create_floating_text("Time to ride!", True) 
-                    self.boss.boss_road.play()
+                    self.boss.boss_road_start.play() 
                     self.create_road()
                 #print("boss in center")
             else:

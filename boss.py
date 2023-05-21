@@ -58,7 +58,7 @@ class Boss:
         #------  
         self.in_active_spell_action = False
         #------  
-        self.boss_lives = 35
+        self.boss_lives = 36
         self.boss_phase = 1 #фаза
         self.boss_phase_2_enabled = False
         self.boss_phase_3_enabled = False
@@ -70,6 +70,9 @@ class Boss:
         self.boss_injured_sound = pygame.mixer.Sound("sounds/boss_injured_sound.mp3")
         self.boss_injured_sound2 = pygame.mixer.Sound("sounds/boss_injured_sound2.mp3")
         self.boss_injured_sound3 = pygame.mixer.Sound("sounds/boss_injured_sound3.mp3")
+        self.boss_injured_sound4 = pygame.mixer.Sound("sounds/boss_injured_sound4.mp3")
+        self.boss_injured_sound5 = pygame.mixer.Sound("sounds/boss_injured_sound5.mp3")
+        self.boss_injured_sound6 = pygame.mixer.Sound("sounds/boss_injured_sound6.mp3")
 
         self.boss_levelup_2 = pygame.mixer.Sound("sounds/boss_levelup_2.mp3")
         self.boss_levelup_3 = pygame.mixer.Sound("sounds/boss_levelup_3.mp3")
@@ -80,18 +83,21 @@ class Boss:
         self.boss_touch_snake3 = pygame.mixer.Sound("sounds/boss_touch_snake3.mp3")
         self.boss_touch_snake4 = pygame.mixer.Sound("sounds/boss_touch_snake4.mp3")
         self.boss_touch_snake5 = pygame.mixer.Sound("sounds/boss_touch_snake5.mp3")
+        self.boss_touch_snake6 = pygame.mixer.Sound("sounds/boss_touch_snake6.mp3")
 
         self.boss_laser = pygame.mixer.Sound("sounds/boss_laser.mp3")
  
         self.boss_minions = pygame.mixer.Sound("sounds/boss_minions.mp3")
 
         self.boss_road = pygame.mixer.Sound("sounds/boss_road.mp3")
+        self.boss_road_start = pygame.mixer.Sound("sounds/boss_road_start.mp3")
  
         self.boss_pentagram = pygame.mixer.Sound("sounds/boss_pentagram.mp3") 
- 
+  
         self.boss_wave = pygame.mixer.Sound("sounds/boss_wave.mp3")
 
         self.boss_death = pygame.mixer.Sound("sounds/boss_death.mp3")
+        self.aniki = pygame.mixer.Sound("sounds/aniki.mp3")
          
 
     def add_movespeed(self, val):
@@ -109,7 +115,7 @@ class Boss:
         self.renderer.create_floating_text(pos, 1, text, down_dir)
    
     def injury_emotion(self):
-        r = randrange(0,3)
+        r = randrange(0,6)
         match r:
             case 0:
                 self.create_floating_text("Ouch, it hurts!") 
@@ -120,6 +126,15 @@ class Boss:
             case 2:
                 self.create_floating_text("Nooooooo!") 
                 self.boss_injured_sound3.play()
+            case 3:
+                self.create_floating_text("Don't do that again!") 
+                self.boss_injured_sound4.play()
+            case 4:
+                self.create_floating_text("Don't touch me there!") 
+                self.boss_injured_sound5.play()
+            case 5:
+                self.create_floating_text("Do you like what you see?") 
+                self.boss_injured_sound6.play()
             case _:
                 self.create_floating_text("Ouch, it hurts!") 
                 self.boss_injured_sound.play()
@@ -215,10 +230,10 @@ class Boss:
             ) 
   
     def boss_touch_snake_emotion(self):
-        r = randrange(0,5) 
+        r = randrange(0,6) 
         match r:
             case 0:
-                self.create_floating_text("Haha, catched!")
+                self.create_floating_text("Haha, I caught you!")
                 self.boss_touch_snake.play()
             case 1:
                 self.create_floating_text("Huh?")
@@ -232,6 +247,9 @@ class Boss:
             case 4:
                 self.create_floating_text("That's power!")
                 self.boss_touch_snake5.play()
+            case 5:
+                self.create_floating_text("Oh yeah!")
+                self.boss_touch_snake6.play()
             case _:
                 self.create_floating_text("Haha, catched!")
                 self.boss_touch_snake.play()
@@ -583,7 +601,7 @@ class Boss:
             self.pentagram_spell()
 
     def wave_spell(self):
-        self.in_active_spell_action = True
+        self.in_active_spell_action = True  
         wave = BossWaveSpell([self.COORDS_WIDTH // 2, self.COORDS_HEIGHT // 2], self, self.snake)
 
     def pentagram_spell(self):

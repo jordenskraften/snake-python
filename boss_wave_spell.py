@@ -56,7 +56,7 @@ class BossWaveSpell(TimedObject):
                 self.boss_in_map_center = True
                 self.lifetime = 115
                 if self.emotion_was_sayed == False:
-                    self.emotion_was_sayed = True
+                    self.emotion_was_sayed = True 
                     self.boss.create_floating_text("casting Wave!", True)  
                 #print("boss in center")
             else:
