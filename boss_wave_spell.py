@@ -30,23 +30,22 @@ class BossWaveSpell(TimedObject):
             if self.lifetime <= 0:  
                 self.death()   
             else: 
-                #рисуем пентаграмму
-                if self.lifetime <= 105 and self.first_wave_spawned == False: 
-                    self.first_wave_spawned = True
-                    self.boss.boss_wave.play()
-                    self.boss.create_floating_text("Taste my wave!", True)  
-                    self.spawn_wave()
-                if self.lifetime <= 65 and self.second_wave_spawned == False: 
-                    self.second_wave_spawned = True
-                    self.boss.boss_wave.play()
-                    self.boss.create_floating_text("Uuuh, i like it!", True)  
-                    self.spawn_wave()
-                if self.lifetime <= 30 and self.third_wave_spawned == False: 
-                    self.third_wave_spawned = True
-                    self.boss.boss_wave.play()
-                    self.boss.create_floating_text("Okay, that's the last one...", True)  
-                    self.spawn_wave()
-                #взрываем её
+                if self.boss.defeated == False: 
+                    if self.lifetime <= 105 and self.first_wave_spawned == False: 
+                        self.first_wave_spawned = True
+                        self.boss.boss_wave.play()
+                        self.boss.create_floating_text("Taste my wave!", True)  
+                        self.spawn_wave()
+                    if self.lifetime <= 65 and self.second_wave_spawned == False: 
+                        self.second_wave_spawned = True
+                        self.boss.boss_wave.play()
+                        self.boss.create_floating_text("Uuuh, i like it!", True)  
+                        self.spawn_wave()
+                    if self.lifetime <= 30 and self.third_wave_spawned == False: 
+                        self.third_wave_spawned = True
+                        self.boss.boss_wave.play()
+                        self.boss.create_floating_text("Okay, that's the last one...", True)  
+                        self.spawn_wave() 
         else:
             #если босс дошел до центра
             if (
